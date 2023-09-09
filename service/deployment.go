@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -152,21 +153,21 @@ func ExpandRequirement(deploymentName, namespace string, oldCPU, oldMem, newCPU,
 		return false
 	}
 
-	node := SearchNode(clientset, deploymentName)
+	node := SearchNode(deploymentName)
 
 	if node == "" {
-		fmt.Println("Error searching node for ", deploymentName)
+		log.Println("Error searching node for ", deploymentName)
 		return false
 	}
 
 	flag, pipelineID := TriggerPipeline(node, deploymentName)
 	if !flag {
-		fmt.Println("Error triggering pipeline for ", deploymentName)
+		log.Println("Error triggering pipeline for ", deploymentName)
 		return false
 	}
 
 	if flag = CheckPipelineStatus(pipelineID); !flag {
-		fmt.Println("Error checking pipeline status for ", pipelineID, deploymentName)
+		log.Println("Error checking pipeline status for ", pipelineID, deploymentName)
 		return false
 	}
 
@@ -192,20 +193,21 @@ func ExpandRequirement(deploymentName, namespace string, oldCPU, oldMem, newCPU,
 	return true
 }
 
-func SearchNode(clientset *kubernetes.Clientset, deploymentName string) string {
+func SearchNode(deploymentName string) string {
+	clientset := GetKubeClient()
 	namespace := strings.Split(deploymentName, "-")[2]
 
 	pods, err := clientset.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{
 		LabelSelector: "app=" + deploymentName,
 	})
 	if err != nil {
-		fmt.Printf("Error searching node for %s: %s\n", deploymentName, err.Error())
+		log.Printf("Error searching node for %s: %s\n", deploymentName, err.Error())
 		return ""
 	}
 
 	for _, pod := range pods.Items {
 		if pod.Status.Phase == "Running" {
-			fmt.Println("Found node for", deploymentName, ":", pod.Spec.NodeName)
+			log.Println("Found node for", deploymentName, ":", pod.Spec.NodeName)
 			return pod.Spec.NodeName
 		}
 	}

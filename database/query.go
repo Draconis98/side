@@ -38,6 +38,25 @@ func GetResourceLimitByUser(username string) (int, int) {
 	return cpuLimit, memLimit
 }
 
+func GetResourceInfoByContainerId(containerId string) (int, int) {
+	if flag := CheckContainerExists(containerId); !flag {
+		log.Printf("container %v not exist", containerId)
+		return -1, -1
+	}
+
+	stmt, err := GetDBInstance().Prepare("SELECT cpu, memory FROM container WHERE container_id = ?")
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	var cpu, memory int
+	if err = stmt.QueryRow(containerId).Scan(&cpu, &memory); err != nil {
+		log.Panicln(err)
+	}
+
+	return cpu, memory
+}
+
 // func SearchImage(db *sql.DB, imageName string) bool {
 // 	stmt, err := db.Prepare("SELECT image_name FROM image WHERE image_name = ?")
 // 	if err != nil {

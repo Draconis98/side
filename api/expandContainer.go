@@ -1,1 +1,80 @@
 package api
+
+import (
+	"github.com/gin-gonic/gin"
+	"log"
+	"main/database"
+	"main/service"
+	"main/utils"
+	"net/http"
+)
+
+func ExpandContainer(c *gin.Context) {
+	var expansion utils.ContainerExpansion
+	var headerInfo utils.HeaderInfo
+	c.BindJSON(&expansion)
+	c.BindHeader(&headerInfo)
+	log.Printf("Expand container: %+v %+v\n", expansion, headerInfo)
+
+	// Get resource limitation.
+	coreLimit, memoryLimit := database.GetResourceLimitByUser(headerInfo.Username)
+	coreOld, memoryOld := database.GetResourceInfoByContainerId(expansion.ContainerId)
+	if coreOld == -1 || memoryOld == -1 {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "Container not exists or get ContainerInfo failed.",
+		})
+		return
+	}
+	if coreLimit == -1 || memoryLimit == -1 {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "Username not exists, get resource limitation failed.",
+		})
+		return
+	}
+	if coreOld == expansion.NewCore && memoryOld == expansion.NewMemory {
+		c.Status(http.StatusOK)
+		return
+	}
+	// Get container list for current user.
+	containerList := database.GetContainersByUser(headerInfo.Username)
+	core, memory := expansion.NewCore, expansion.NewMemory
+	for _, container := range containerList {
+		core += container.Core
+		memory += container.Memory
+	}
+	core = core - coreOld
+	memory = memory - memoryOld
+	if core > coreLimit || memory > memoryLimit {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "Exceed resource limitation, create container failed.",
+		})
+		return
+	}
+
+	// This function will always success (maybe take a long time).
+	flag := service.ExpandRequirement(
+		expansion.ContainerId,
+		headerInfo.Username,
+		coreOld,
+		memoryOld,
+		expansion.NewCore,
+		expansion.NewMemory,
+	)
+	if !flag {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "Exceed resource limitation, create container failed.",
+		})
+		return
+	}
+	// Write to database
+	database.UpdateContainerInfo(
+		expansion.ContainerId,
+		expansion.NewCore,
+		expansion.NewMemory,
+	)
+	c.JSON(http.StatusOK, utils.ContainerExpansion{
+		ContainerId: expansion.ContainerId,
+		NewCore:     expansion.NewCore,
+		NewMemory:   expansion.NewMemory,
+	})
+}

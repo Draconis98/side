@@ -1,5 +1,9 @@
 package database
 
+import (
+	"log"
+)
+
 // func UpdateContainerStatus(db *sql.DB, containerName string, status int) bool {
 // 	stmt, err := db.Prepare("UPDATE container SET status = ? WHERE container_name = ?")
 // 	if err != nil {
@@ -14,19 +18,19 @@ package database
 // 	return true
 // }
 
-// func UpdateContainerCPU(db *sql.DB, containerName string, cpu int) bool {
-// 	stmt, err := db.Prepare("UPDATE container SET cpu = ? WHERE container_name = ?")
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
+func UpdateContainerInfo(containerName string, cpu int, memory int) bool {
+	stmt, err := GetDBInstance().Prepare("UPDATE container SET cpu = ?, memory = ? WHERE container_name = ?")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-// 	_, err = stmt.Exec(cpu, containerName)
-// 	if err != nil {
-// 		return false
-// 	}
+	_, err = stmt.Exec(cpu, memory, containerName)
+	if err != nil {
+		return false
+	}
 
-// 	return true
-// }
+	return true
+}
 
 // func UpdateContainerMem(db *sql.DB, containerName string, mem int) bool {
 // 	stmt, err := db.Prepare("UPDATE container SET memory = ? WHERE container_name = ?")
