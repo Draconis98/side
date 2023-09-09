@@ -5,11 +5,11 @@ import (
 
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/utils/pointer"
 )
 
-func GetIngress(clientset *kubernetes.Clientset, ingressName, namespace string) (*networkingv1.Ingress, error) {
+func GetIngress(ingressName, namespace string) (*networkingv1.Ingress, error) {
+	clientset := GetKubeClient()
 	ingressClient, err := clientset.NetworkingV1().Ingresses(namespace).Get(context.TODO(), ingressName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func GetIngress(clientset *kubernetes.Clientset, ingressName, namespace string) 
 func CreateIngress(ingress *networkingv1.Ingress, namespace string) (*networkingv1.Ingress, error) {
 	clientset := GetKubeClient()
 	// Get Ingress
-	ingressClient, err := GetIngress(clientset, ingress.Name, namespace)
+	ingressClient, err := GetIngress(ingress.Name, namespace)
 	if err != nil { // If not exist, create it
 		// Create Ingress
 		ingressClient, err = clientset.NetworkingV1().Ingresses(namespace).Create(context.TODO(), ingress, metav1.CreateOptions{})
@@ -33,9 +33,10 @@ func CreateIngress(ingress *networkingv1.Ingress, namespace string) (*networking
 	return ingressClient, nil
 }
 
-func DeleteIngress(clientset *kubernetes.Clientset, ingressName, namespace string) error {
+func DeleteIngress(ingressName, namespace string) error {
+	clientset := GetKubeClient()
 	// Get Ingress
-	_, err := GetIngress(clientset, ingressName, namespace)
+	_, err := GetIngress(ingressName, namespace)
 	if err != nil { // If not exist, return
 		return err
 	}

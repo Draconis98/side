@@ -2,13 +2,13 @@ package service
 
 import (
 	"fmt"
-	"k8s.io/client-go/kubernetes"
+	"log"
 	"strings"
 	"sync"
 )
 
-func Delete(clientset *kubernetes.Clientset, studentName, containerName string) { // studentName is the namespace containerName
-	fmt.Println("Deleting k8s resources...")
+func Delete(studentName, containerName string) { // studentName is the namespace containerName
+	log.Println("Deleting k8s resources...")
 	defer fmt.Println("K8s resources deleted")
 
 	containerName = strings.ToLower(containerName)
@@ -18,28 +18,28 @@ func Delete(clientset *kubernetes.Clientset, studentName, containerName string) 
 
 	go func() {
 		defer wg.Done()
-		defer fmt.Printf("Deployment %s \033[31mdeleted\033[0m\n", containerName)
+		defer log.Printf("Deployment %s \033[31mdeleted\033[0m\n", containerName)
 
-		if err := DeleteDeployment(clientset, containerName, studentName); !err {
-			fmt.Printf("Deployment %s \033[33mnot found\033[0m", containerName)
+		if err := DeleteDeployment(containerName, studentName); !err {
+			log.Printf("Deployment %s \033[33mnot found\033[0m", containerName)
 		}
 	}() // Delete Deployment
 
 	go func() {
 		defer wg.Done()
-		defer fmt.Printf("Service %s \033[31mdeleted\033[0m\n", containerName)
+		defer log.Printf("Service %s \033[31mdeleted\033[0m\n", containerName)
 
-		if err := DeleteService(clientset, containerName, studentName); err != nil {
-			panic(err.Error())
+		if err := DeleteService(containerName, studentName); err != nil {
+			log.Panicln(err.Error())
 		}
 	}() // Delete Service
 
 	go func() {
 		defer wg.Done()
-		defer fmt.Printf("Ingress %s \033[31mdeleted\033[0m\n", containerName)
+		defer log.Printf("Ingress %s \033[31mdeleted\033[0m\n", containerName)
 
-		if err := DeleteIngress(clientset, containerName, studentName); err != nil {
-			panic(err.Error())
+		if err := DeleteIngress(containerName, studentName); err != nil {
+			log.Panicln(err.Error())
 		}
 	}() // Delete Ingress
 

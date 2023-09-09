@@ -14,7 +14,8 @@ import (
 	"k8s.io/utils/pointer"
 )
 
-func GetDeployment(clientset *kubernetes.Clientset, deploymentName, namespace string) (*appsv1.Deployment, error) {
+func GetDeployment(deploymentName, namespace string) (*appsv1.Deployment, error) {
+	clientset := GetKubeClient()
 	deploymentClient, err := clientset.AppsV1().Deployments(namespace).Get(context.TODO(), deploymentName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -50,9 +51,10 @@ func RestoreDeployment(clientset *kubernetes.Clientset, deploymentName string, c
 	return nil
 }
 
-func DeleteDeployment(clientset *kubernetes.Clientset, deploymentName, namespace string) bool {
+func DeleteDeployment(deploymentName, namespace string) bool {
+	clientset := GetKubeClient()
 	// Get Deployment
-	_, err := GetDeployment(clientset, deploymentName, namespace)
+	_, err := GetDeployment(deploymentName, namespace)
 	if err != nil { // If not exist, return
 		return false
 	}
@@ -141,9 +143,10 @@ func CheckDeployment(clientset *kubernetes.Clientset, namespace string) (bool, e
 	return false, nil
 }
 
-func ExpandRequirement(clientset *kubernetes.Clientset, deploymentName, namespace string, oldCPU, oldMem, newCPU, newMem int) bool {
+func ExpandRequirement(deploymentName, namespace string, oldCPU, oldMem, newCPU, newMem int) bool {
+	clientset := GetKubeClient()
 	// Get Deployment
-	deployment, err := GetDeployment(clientset, deploymentName, namespace)
+	deployment, err := GetDeployment(deploymentName, namespace)
 	if err != nil {
 		fmt.Println("Error getting deployment:", err)
 		return false

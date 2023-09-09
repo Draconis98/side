@@ -6,10 +6,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/client-go/kubernetes"
 )
 
-func GetService(clientset *kubernetes.Clientset, serviceName, namespace string) (*corev1.Service, error) {
+func GetService(serviceName, namespace string) (*corev1.Service, error) {
+	clientset := GetKubeClient()
 	serviceClient, err := clientset.CoreV1().Services(namespace).Get(context.TODO(), serviceName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func GetService(clientset *kubernetes.Clientset, serviceName, namespace string) 
 func CreateService(service *corev1.Service, namespace string) (*corev1.Service, error) {
 	clientset := GetKubeClient()
 	// Get Service
-	serviceClient, err := GetService(clientset, service.Name, namespace)
+	serviceClient, err := GetService(service.Name, namespace)
 	if err != nil {
 		// Create Service
 		serviceClient, err = clientset.CoreV1().Services(namespace).Create(context.TODO(), service, metav1.CreateOptions{})
@@ -33,9 +33,10 @@ func CreateService(service *corev1.Service, namespace string) (*corev1.Service, 
 	return serviceClient, nil
 }
 
-func DeleteService(clientset *kubernetes.Clientset, serviceName, namespace string) error {
+func DeleteService(serviceName, namespace string) error {
+	clientset := GetKubeClient()
 	// Get Service
-	_, err := GetService(clientset, serviceName, namespace)
+	_, err := GetService(serviceName, namespace)
 	if err != nil { // If not exist, return
 		return err
 	}
