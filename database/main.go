@@ -11,9 +11,10 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	containerList := SearchContainerByUser(db, "test")
-	for _, container := range containerList {
-		log.Println(container)
+	if flag := UpdateContainerStatus(db, "container1", 0); flag {
+		log.Println("Update container status successfully")
+	} else {
+		log.Println("Update container status failed")
 	}
 }
 
