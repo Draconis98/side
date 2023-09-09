@@ -12,7 +12,7 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	//InsertUser(db)
+	InsertUser(db)
 
 	fmt.Println("InitDBConnection success")
 }
