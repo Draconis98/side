@@ -30,6 +30,13 @@ func CreateContainer(c *gin.Context) {
 
 	// Get container list for current user.
 	containerList := database.GetContainersByUser(headerInfo.Username)
+	if containerList == nil {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "Username not exists, get container list failed.",
+		})
+		return
+	}
+
 	core, memory := creation.Core, creation.Memory
 	for _, container := range containerList {
 		core += container.Core

@@ -20,7 +20,7 @@ func main() {
 	defer log.Println("Close DB")
 
 	r.GET("index", api.Index)
-	//r.POST("api/container", api.GetContainer)
+	r.GET("api/container", api.GetContainer)
 	r.POST("api/container/new", api.CreateContainer)
 	//r.POST("api/container/expand", api.ExpandContainer)
 	r.POST("api/container/delete", api.DeleteContainer)

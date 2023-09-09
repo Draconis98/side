@@ -1,12 +1,12 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"main/database"
 	"main/utils"
 	"net/http"
-	_ "net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetContainer(c *gin.Context) {
@@ -16,7 +16,11 @@ func GetContainer(c *gin.Context) {
 
 	// Get container list for current user.
 	containerList := database.GetContainersByUser(headerInfo.Username)
-
-	c.JSON(http.StatusOK, containerList)
-
+	if containerList == nil {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "Username not exists, get container list failed.",
+		})
+	} else {
+		c.JSON(http.StatusOK, containerList)
+	}
 }
