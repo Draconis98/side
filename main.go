@@ -23,7 +23,7 @@ func main() {
 	defer log.Println("Close DB")
 
 	r.LoadHTMLGlob("templates/*")
-	// r.Static("/", "static")
+	r.StaticFile("/serve.png", "static/serve.png")
 
 	r.GET("/", Index)
 	r.GET("index", Index)

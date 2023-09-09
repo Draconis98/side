@@ -186,8 +186,8 @@
                 </el-form>
             </div>
             <div class="tableContainer">
-                <el-table :data="userData" @cell-click="clickMore" style="width: 100%">
-                    <el-table-column fixed align="center" prop="containerId" label="容器名称" width="100">
+                <el-table v-loading="userTableLoading" :data="userData" @cell-click="clickMore" style="width: 100%">
+                    <el-table-column fixed align="center" prop="containerId" label="容器名称" width="150">
                     </el-table-column>
                     <el-table-column prop="status" align="center" label="容器状态" width="90">
                         <template slot-scope="scope">
@@ -196,20 +196,19 @@
                         'greenCircle': scope.row.status === 1}"></i>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="baseImage" align="center" label="基础镜像" width="100">
-                    </el-table-column>
                     <el-table-column prop="core" align="center" label="CPU" width="100">
                     </el-table-column>
                     <el-table-column prop="memory" align="center" label="内存" width="100">
                     </el-table-column>
-                    <el-table-column align="center" label="操作" width="100">
+                    <el-table-column align="center" label="操作" width="100" >
                         <template slot-scope="scope">
                             <el-menu v-if="scope.row.status === 1" :default-active="activeIndex" class="el-menu-demo"
                                 mode="horizontal" :collapse="true" menu-trigger="click" @select="handleSelect">
-                                <div style="display: inline-block;height: 64px;line-height: 64px;text-align: center;">
-                                    <img src="./open.svg" style="height: 20px; width: 20px;" alt="">
-                                    <img src="./close.svg" style="height: 20px; width: 20px;" alt="">
-                                </div>
+                                <template slot="title">
+                                    <div @click="switchState" style="text-align: center;">
+                                      <i :class="switchArrow ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+                                    </div>
+                                  </template>
                                 <el-submenu index="1">
                                     <el-menu-item index="1-1">进 入</el-menu-item>
                                     <el-menu-item index="1-2">扩 容</el-menu-item>
@@ -218,10 +217,11 @@
                             </el-menu>
                             <el-menu v-else :default-active="activeIndex" class="el-menu-demo" mode="horizontal"
                                 :collapse="true" menu-trigger="click" @select="handleSelect">
-                                <div style="display: inline-block;height: 64px;line-height: 64px;text-align: center;">
-                                    <img src="./open.svg" style="height: 20px; width: 20px;" alt="">
-                                    <img src="./close.svg" style="height: 20px; width: 20px;" alt="">
-                                </div>
+                                <template slot="title">
+                                    <div @click="switchState" style="text-align: center;">
+                                      <i :class="switchArrow ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+                                    </div>
+                                  </template>
                                 <el-submenu index="1">
                                     <el-menu-item index="1-1">进 入</el-menu-item>
                                     <el-menu-item index="1-3">删 除</el-menu-item>
@@ -281,8 +281,8 @@
                     base_url: "http://10.130.10.34:5500",
                     newForm: {
                         baseImage: 'vscode',
-                        core: 2,
-                        memory: 4
+                        core: "2",
+                        memory: "4"
                         // customName: ""
                     },
                     activeIndex: '1',
@@ -317,20 +317,22 @@
                     changeItem: null,//存储表格中用户点击的某行数据
                     online: true,
                     cores: [
-                        { "label": "2核", "val": 2 },
-                        { "label": "4核", "val": 4 },
-                        { "label": "8核", "val": 8 }
+                        { "label": "2核", "val": "2" },
+                        { "label": "4核", "val": "4" },
+                        { "label": "8核", "val": "8" }
                     ],
                     memorys: [
-                        { "label": "4G", "val": 4 },
-                        { "label": "8G", "val": 8 },
-                        { "label": "16G", "val": 16 }
-                    ]
+                        { "label": "4G", "val": "4" },
+                        { "label": "8G", "val": "8" },
+                        { "label": "16G", "val": "16" }
+                    ],
+                    switchArrow:false,
+                    userTableLoading:false,
                 }
             },
             mounted() {
                 axios.get('/api/container').then(res => {
-                    console.log('/api/container:',res);
+                    console.log('/api/container:', res);
                     if (res.status == 200) {
                         console.log("successful");
                         //给this.userData赋值
@@ -341,42 +343,63 @@
                         console.log(res.message)
                     }
                 }).catch(err => {
-                    console.error('/api/container:',err);
+                    console.error('/api/container:', err);
                 })
             },
             methods: {
                 onSubmit() {
+                    this.userTableLoading = true
                     this.seen = false
-                    this.newForm.core=parseInt(this.newForm.core)
-                    this.newForm.memory=parseInt(this.newForm.memory)
+                    this.newForm.core = parseInt(this.newForm.core)
+                    this.newForm.memory = parseInt(this.newForm.memory)
                     axios.post('/api/container/new', this.newForm)
                         .then(response => {
                             // 处理请求成功的响应数据
-                            console.log('/api/container/new:',response);
+                            console.log('/api/container/new:', response);
                             if (response.status == 200) {
                                 //创建容器成功
                                 console.log(response);
                                 //跳转
                                 let containerId = response.data.containerId
-                                let url = "http://"+containerId+".oms.agileserve.org.cn:30915"
+                                let url = "http://" + containerId + ".oms.agileserve.org.cn:30915"
                                 console.log(url);
-                                setTimeout(()=>{
-                                    window.location.href=url
-                                },3000)
-                                
+                                setTimeout(() => {
+                                    window.location.href = url
+                                }, 3000)
+                                axios.get('/api/container').then(res => {
+                                    console.log('/api/container:', res);
+                                    if (res.status == 200) {
+                                        console.log("successful");
+                                        //给this.userData赋值
+                                        // this.testGetData = res.data.return_data[0].content
+                                        this.userData = res.data
+                                    } else {
+                                        //未查询出用户名，返回500服务器错误？？
+                                        console.log(res.message)
+                                    }
+                                }).catch(err => {
+                                    console.error('/api/container:', err);
+                                })
                             } else if (response.status == 500) {
                                 //创建失败，处理错误
-                                console.log(response.message)
+                                console.error(response.message)
+                                alert("创建错误，资源超过限制！")
                             }
-                        })
-                        .catch(error => {
+                        }).catch(error => {
                             // 处理请求失败
                             console.log(this.newForm);//{baseImage: "vscode", core: "2", memory: "4"}
                             console.error('/api/container/new:', error);
+                            this.seen = true
                         });
+                        
                 },
                 clrSubmit(idx) {
-                    this.$refs[idx].resetFields();
+                    this.newForm = {
+                        baseImage: 'vscode',
+                        core: "2",
+                        memory: "4"
+                        // customName: ""
+                    }
                 },
                 params2url(obj) {
                     return Object.keys(obj).filter(v => Array.isArray(obj[v]) ? obj[v].length : obj[v]).map(v => `${v}=${obj[v]}`).join('&')
@@ -408,11 +431,11 @@
                             "containerId": this.changeItem.containerId
                         })
                             .then(res => {
-                                console.log('/api/container/delete:',res)
+                                console.log('/api/container/delete:', res)
                                 if (res.status == 200) {
                                     //删除成功，重新获取表格
                                     axios.get('/api/container').then(res => {
-                                        console.log('/api/container:',res);
+                                        console.log('/api/container:', res);
                                         if (res.status == 200) {
                                             //给this.userData赋值
                                             // this.testGetData = response.data.return_data[0].content
@@ -422,14 +445,17 @@
                                             console.error(res.message)
                                         }
                                     }).catch(err => {
-                                        console.error('/api/container/delete:',err);
+                                        console.error('/api/container/delete:', err);
                                     })
                                 }
                             })
                             .catch(err => {
-                                console.error('/api/container/delete:',err);
+                                console.error('/api/container/delete:', err);
                             })
                     }
+                },
+                switchState(){
+                    this.switchArrow = !this.switchArrow
                 },
                 clickMore(row, column, cell, event) {
                     console.log(row);
@@ -457,12 +483,12 @@
                         { "label": "4核", "val": 4 },
                         { "label": "8核", "val": 8 }
                     ],
-                    this.memorys = [
-                        { "label": "4G", "val": 4 },
-                        { "label": "8G", "val": 8 },
-                        { "label": "16G", "val": 16 }
-                    ]
-                    if(parseInt(this.expandForm.core) == 0||parseInt(this.expandForm.memory) == 0){
+                        this.memorys = [
+                            { "label": "4G", "val": 4 },
+                            { "label": "8G", "val": 8 },
+                            { "label": "16G", "val": 16 }
+                        ]
+                    if (parseInt(this.expandForm.core) == 0 || parseInt(this.expandForm.memory) == 0) {
                         console.log('error submit!! cpu或内存不能为空');
                         this.expandForm.core = parseInt(this.changeItem.core)
                         this.expandForm.memory = parseInt(this.changeItem.memory)
@@ -473,33 +499,34 @@
                         "newMemory": parseInt(this.expandForm.memory)
                     })
                         .then(res => {
-                            console.log('/api/container/expand:',res)
+                            console.log('/api/container/expand:', res)
                             if (res.status == 200) {
                                 //扩容成功
                                 //重新获取
                                 axios.get('/api/container').then(res => {
-                                    console.log('/api/container:',res);
+                                    console.log('/api/container:', res);
                                     if (res.status == 200) {
                                         //给this.userData赋值
                                         // this.userData = response.data.return_data[0].content
-                                        this.userData = response.data
+                                        this.userData = res.data
+                                        console.log("this.userData:",this.userData);
 
                                     } else {
                                         //未查询出用户名，返回500服务器错误？？
                                         console.error(res.message)
                                     }
                                 }).catch(err => {
-                                    console.error('/api/container:',err);
+                                    console.error('/api/container:', err);
                                 })
                             }
                         })
                         .catch(err => {
-                            console.error('/api/container/expand:',err);
+                            console.error(err);
                         })
                 },
-                clearExpand(){
-                        this.expandForm.core = parseInt(this.changeItem.core)
-                        this.expandForm.memory = parseInt(this.changeItem.memory)
+                clearExpand() {
+                    this.expandForm.core = parseInt(this.changeItem.core)
+                    this.expandForm.memory = parseInt(this.changeItem.memory)
                 }
             }
         })
