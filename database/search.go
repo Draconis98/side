@@ -48,7 +48,7 @@ func SearchContainer(db *sql.DB, containerName string) bool {
 }
 
 func SearchContainerByUser(db *sql.DB, userName string) []string {
-	stmt, err := db.Prepare("SELECT * FROM container WHERE user_name = ?")
+	stmt, err := db.Prepare("SELECT container_name FROM container WHERE user_name = ?")
 	if err != nil {
 		log.Fatalln(err)
 	}
