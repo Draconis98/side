@@ -5,17 +5,20 @@ import (
 	"time"
 )
 
-// func InsertUser(db *sql.DB, userName string) {
-// 	stmt, err := db.Prepare("INSERT INTO user(user_name) VALUES(?)")
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
+func InsertUser(username string) {
+	if CheckUserExists(username) {
+		return
+	}
+	stmt, err := GetDBInstance().Prepare("INSERT INTO user(user_name) VALUES(?)")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-// 	_, err = stmt.Exec(userName)
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
-// }
+	_, err = stmt.Exec(username)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
 
 // func InsertImage(db *sql.DB, imageName, userName string) {
 // 	commitTime := time.Now()

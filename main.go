@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"main/api"
 	"main/database"
+	"main/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -12,7 +14,7 @@ func main() {
 	r := gin.Default()
 
 	database.InitDBConnection()
-	//service.InitKubeClient()
+	service.InitKubeClient()
 	// TODO: the db will not close here if <C-c>.
 	// Try to fix it.
 	defer database.CloseDBConnection()

@@ -1,12 +1,13 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"main/database"
 	"main/service"
 	"main/utils"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ExpandContainer(c *gin.Context) {
@@ -18,6 +19,13 @@ func ExpandContainer(c *gin.Context) {
 
 	// Get resource limitation.
 	coreLimit, memoryLimit := database.GetResourceLimitByUser(headerInfo.Username)
+	if coreLimit == -1 || memoryLimit == -1 {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "Username not exists, get resource limitation failed.",
+		})
+		return
+	}
+
 	coreOld, memoryOld := database.GetResourceInfoByContainerId(expansion.ContainerId)
 	if coreOld == -1 || memoryOld == -1 {
 		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
@@ -25,18 +33,27 @@ func ExpandContainer(c *gin.Context) {
 		})
 		return
 	}
-	if coreLimit == -1 || memoryLimit == -1 {
+
+	if coreOld > expansion.NewCore || memoryOld > expansion.NewMemory {
 		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
-			Message: "Username not exists, get resource limitation failed.",
+			Message: "Requsting resources is invalid. Expanding failed.",
 		})
 		return
 	}
+
 	if coreOld == expansion.NewCore && memoryOld == expansion.NewMemory {
 		c.Status(http.StatusOK)
 		return
 	}
+
 	// Get container list for current user.
 	containerList := database.GetContainersByUser(headerInfo.Username)
+	if containerList == nil {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "Username not exists, get container list failed.",
+		})
+	}
+
 	core, memory := expansion.NewCore, expansion.NewMemory
 	for _, container := range containerList {
 		core += container.Core
@@ -51,7 +68,7 @@ func ExpandContainer(c *gin.Context) {
 		return
 	}
 
-	// This function will always success (maybe take a long time).
+	// This function maybe take a long time.
 	flag := service.ExpandRequirement(
 		expansion.ContainerId,
 		headerInfo.Username,
@@ -62,7 +79,7 @@ func ExpandContainer(c *gin.Context) {
 	)
 	if !flag {
 		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
-			Message: "Exceed resource limitation, create container failed.",
+			Message: "Expand container failed.",
 		})
 		return
 	}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	gitlab "github.com/xanzy/go-gitlab"
 )
 

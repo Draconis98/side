@@ -19,13 +19,14 @@ import (
 // }
 
 func UpdateContainerInfo(containerName string, cpu int, memory int) bool {
-	stmt, err := GetDBInstance().Prepare("UPDATE container SET cpu = ?, memory = ? WHERE container_name = ?")
+	stmt, err := GetDBInstance().Prepare("UPDATE container SET core = ?, memory = ? WHERE container_id = ?")
 	if err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
 
 	_, err = stmt.Exec(cpu, memory, containerName)
 	if err != nil {
+		log.Println(err)
 		return false
 	}
 
