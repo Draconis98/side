@@ -11,7 +11,7 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	DeleteUser(db, "Dolly")
+	SearchUser(db, "test")
 }
 
 func InitDBConnection() *sql.DB {
