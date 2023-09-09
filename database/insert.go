@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 )
@@ -19,7 +20,13 @@ func InsertUser(db *sql.DB, userName string) {
 }
 
 func InsertImage(db *sql.DB, imageName, userName string) {
-	commitTime := time.Now().Local()
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	commitTime := time.Now().In(loc)
 	stmt, err := db.Prepare("INSERT INTO image(image_name, commit_time, user_name) VALUES(?, ?, ?)")
 	if err != nil {
 		log.Fatalln(err)
