@@ -12,13 +12,13 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	InsertUser(db)
+	//InsertUser(db)
 
 	fmt.Println("InitDBConnection success")
 }
 
 func InitDBConnection() *sql.DB {
-	info := "root:Agileserve@123@tcp(10.30.19.15:3306)/side"
+	info := "jss:agileserve@123@tcp(10.30.19.15:3306)/ide"
 	db, err := sql.Open("mysql", info)
 	if err != nil {
 		log.Fatalln(err) // connect to database failed
