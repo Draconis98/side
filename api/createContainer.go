@@ -27,6 +27,13 @@ func CreateContainer(c *gin.Context) {
 		return
 	}
 
+	if creation.Core <= 0 || creation.Memory <= 0 {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "Requsting resources is invalid. Creating failed.",
+		})
+		return
+	}
+
 	// Get resource limitation.
 	coreLimit, memoryLimit := database.GetResourceLimitByUser(headerInfo.Username)
 	if coreLimit == -1 || memoryLimit == -1 {
