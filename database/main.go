@@ -18,7 +18,7 @@ func main() {
 }
 
 func InitDBConnection() *sql.DB {
-	info := "jss:agileserve@123@tcp(10.30.19.15:3306)/ide"
+	info := "side:Serve@123@tcp(10.30.19.15:3306)/side"
 	db, err := sql.Open("mysql", info)
 	if err != nil {
 		log.Fatalln(err) // connect to database failed
