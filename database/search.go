@@ -47,8 +47,16 @@ func SearchContainer(db *sql.DB, containerName string) bool {
 	return true
 }
 
-func SearchContainerByUser(db *sql.DB, userName string) []string {
-	stmt, err := db.Prepare("SELECT container_name FROM container WHERE user_name = ?")
+type Container struct {
+	containerName string
+	basedImage    string
+	status        int
+	cpu           int
+	memory        int
+}
+
+func SearchContainerByUser(db *sql.DB, userName string) []Container {
+	stmt, err := db.Prepare("SELECT container_name, based_image, status, cpu, memory FROM container WHERE user_name = ?")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -58,14 +66,16 @@ func SearchContainerByUser(db *sql.DB, userName string) []string {
 		log.Fatalln(err)
 	}
 
-	var containerNames []string
+	var containers []Container
 	for rows.Next() {
-		var containerName string
-		if err = rows.Scan(&containerName); err != nil {
+		var container Container
+		if err := rows.Scan(&container.containerName, &container.basedImage,
+			&container.status, &container.cpu, &container.memory); err != nil {
 			log.Fatalln(err)
 		}
-		containerNames = append(containerNames, containerName)
+
+		containers = append(containers, container)
 	}
 
-	return containerNames
+	return containers
 }
