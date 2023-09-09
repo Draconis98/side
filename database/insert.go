@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 )
@@ -20,19 +19,26 @@ func InsertUser(db *sql.DB, userName string) {
 }
 
 func InsertImage(db *sql.DB, imageName, userName string) {
-	loc, err := time.LoadLocation("Asia/Shanghai")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	commitTime := time.Now().In(loc)
+	commitTime := time.Now()
 	stmt, err := db.Prepare("INSERT INTO image(image_name, commit_time, user_name) VALUES(?, ?, ?)")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	_, err = stmt.Exec(imageName, commitTime, userName)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func InsertContainer(db *sql.DB, containerName, userName, imageName string, cpu, memory int) {
+	currentTime := time.Now()
+	stmt, err := db.Prepare("INSERT INTO container(container_name, user_name, last_visit, based_image, cpu, memory) VALUES(?, ?, ?, ?, ?)")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	_, err = stmt.Exec(containerName, userName, currentTime, imageName, cpu, memory)
 	if err != nil {
 		log.Fatalln(err)
 	}

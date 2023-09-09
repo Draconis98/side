@@ -11,7 +11,7 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	InsertImage(db, "image1", "test")
+	InsertContainer(db, "container1", "test", "image1", 1, 1)
 }
 
 func InitDBConnection() *sql.DB {
