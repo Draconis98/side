@@ -11,16 +11,9 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	if flag := SearchContainer(db, "container1"); flag {
-		log.Println("container1 exists")
-	} else {
-		log.Println("container1 does not exist")
-	}
-
-	if flag := SearchImage(db, "image1"); flag {
-		log.Println("image1 exists")
-	} else {
-		log.Println("image1 does not exist")
+	containerList := SearchContainerByUser(db, "test")
+	for _, container := range containerList {
+		log.Println(container)
 	}
 }
 

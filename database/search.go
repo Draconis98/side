@@ -46,3 +46,26 @@ func SearchContainer(db *sql.DB, containerName string) bool {
 
 	return true
 }
+
+func SearchContainerByUser(db *sql.DB, userName string) []string {
+	stmt, err := db.Prepare("SELECT * FROM container WHERE user_name = ?")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	rows, err := stmt.Query(userName)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var containerNames []string
+	for rows.Next() {
+		var containerName string
+		if err = rows.Scan(&containerName); err != nil {
+			log.Fatalln(err)
+		}
+		containerNames = append(containerNames, containerName)
+	}
+
+	return containerNames
+}
