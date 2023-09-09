@@ -1,12 +1,13 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"main/database"
 	"main/service"
 	"main/utils"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func DeleteContainer(c *gin.Context) {
@@ -18,7 +19,9 @@ func DeleteContainer(c *gin.Context) {
 
 	// Delete from database first
 	if flag := database.DeleteContainer(deletion.ContainerId); !flag {
-		c.JSON(http.StatusInternalServerError, utils.ErrorMessage{Message: "Database error"})
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "ContainerId not exists, delete container failed.",
+		})
 		return
 	}
 

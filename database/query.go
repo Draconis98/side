@@ -52,26 +52,26 @@ func GetResourceLimitByUser(username string) (int, int) {
 // 	return true
 // }
 
-// func SearchContainer(db *sql.DB, containerName string) bool {
-// 	stmt, err := db.Prepare("SELECT container_name FROM container WHERE container_name = ?")
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
+func CheckContainerExists(containerId string) bool {
+	stmt, err := GetDBInstance().Prepare("SELECT container_id FROM container WHERE container_id = ?")
+	if err != nil {
+		log.Panicln(err)
+	}
 
-// 	var name string
-// 	if err = stmt.QueryRow(containerName).Scan(&name); err != nil {
-// 		return false
-// 	}
+	var name string
+	if err = stmt.QueryRow(containerId).Scan(&name); err != nil {
+		return false
+	}
 
-// 	return true
-// }
+	return true
+}
 
 // Get the containers by username.
 // If the user doesn't exist, return nil
 // If the user have no containers, return an empty list.
 func GetContainersByUser(username string) []utils.Container {
 	if flag := CheckUserExists(username); !flag {
-		log.Printf("user %v not exist", username)
+		log.Printf("User %v not exist", username)
 		return nil
 	}
 

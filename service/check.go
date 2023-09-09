@@ -1,53 +1,47 @@
 package service
 
-import (
-	"fmt"
-	"k8s.io/client-go/kubernetes"
-	"strings"
-	"sync"
-	//"time"
-	//"fmt"
-)
+//"time"
+//"fmt"
 
-func CheckSuccess(clientset *kubernetes.Clientset, studentName, containerName string) bool {
-	containerName = strings.ToLower(containerName)
+// func CheckSuccess(clientset *kubernetes.Clientset, studentName, containerName string) bool {
+// 	containerName = strings.ToLower(containerName)
 
-	flag := true
+// 	flag := true
 
-	var wg sync.WaitGroup
-	wg.Add(3)
+// 	var wg sync.WaitGroup
+// 	wg.Add(3)
 
-	go func() {
-		defer wg.Done()
+// 	go func() {
+// 		defer wg.Done()
 
-		_, err := GetDeployment(clientset, containerName, studentName)
-		if err != nil {
-			flag = false
-		}
-	}()
+// 		_, err := GetDeployment(clientset, containerName, studentName)
+// 		if err != nil {
+// 			flag = false
+// 		}
+// 	}()
 
-	go func() {
-		defer wg.Done()
+// 	go func() {
+// 		defer wg.Done()
 
-		_, err := GetService(clientset, containerName, studentName)
-		if err != nil {
-			flag = false
-		}
-	}()
+// 		_, err := GetService(clientset, containerName, studentName)
+// 		if err != nil {
+// 			flag = false
+// 		}
+// 	}()
 
-	go func() {
-		defer wg.Done()
+// 	go func() {
+// 		defer wg.Done()
 
-		_, err := GetIngress(clientset, containerName, studentName)
-		if err != nil {
-			flag = false
-		}
-	}()
+// 		_, err := GetIngress(clientset, containerName, studentName)
+// 		if err != nil {
+// 			flag = false
+// 		}
+// 	}()
 
-	wg.Wait()
+// 	wg.Wait()
 
-	return flag
-}
+// 	return flag
+// }
 
 /*
 
@@ -170,61 +164,61 @@ func CheckEndLoading(clientset *kubernetes.Clientset, studentName, image, timest
 
 */
 
-func CheckEndLoading(clientset *kubernetes.Clientset, studentName, containerName string) bool {
-	containerName = strings.ToLower(containerName)
+// func CheckEndLoading(clientset *kubernetes.Clientset, studentName, containerName string) bool {
+// 	containerName = strings.ToLower(containerName)
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+// 	var wg sync.WaitGroup
+// 	wg.Add(2)
 
-	go func() {
-		defer wg.Done()
-		flag := false
-		for !flag {
-			dpt, err := GetDeployment(clientset, containerName, studentName)
-			if err != nil {
-				fmt.Printf("\033[31mError getting Deployment: %v\033[0m\n\n", err)
-			} else {
-				if dpt.Status.AvailableReplicas > 0 {
-					fmt.Println("\033[32mDeployment " + containerName + " is ready!\033[0m")
-					flag = true
-				}
-			}
-		}
-	}()
+// 	go func() {
+// 		defer wg.Done()
+// 		flag := false
+// 		for !flag {
+// 			dpt, err := GetDeployment(clientset, containerName, studentName)
+// 			if err != nil {
+// 				fmt.Printf("\033[31mError getting Deployment: %v\033[0m\n\n", err)
+// 			} else {
+// 				if dpt.Status.AvailableReplicas > 0 {
+// 					fmt.Println("\033[32mDeployment " + containerName + " is ready!\033[0m")
+// 					flag = true
+// 				}
+// 			}
+// 		}
+// 	}()
 
-	go func() {
-		defer wg.Done()
-		flag := false
-		for !flag {
-			igs, err := GetIngress(clientset, containerName, studentName)
-			if err != nil {
-				fmt.Printf("\033[31mError getting Ingress: %v\033[0m\n\n", err)
-			} else {
-				if igs.Status.LoadBalancer.Ingress != nil {
-					fmt.Println("\033[32mIngress " + containerName + " is ready!\033[0m")
-					flag = true
-				}
-			}
-		}
-	}()
+// 	go func() {
+// 		defer wg.Done()
+// 		flag := false
+// 		for !flag {
+// 			igs, err := GetIngress(clientset, containerName, studentName)
+// 			if err != nil {
+// 				fmt.Printf("\033[31mError getting Ingress: %v\033[0m\n\n", err)
+// 			} else {
+// 				if igs.Status.LoadBalancer.Ingress != nil {
+// 					fmt.Println("\033[32mIngress " + containerName + " is ready!\033[0m")
+// 					flag = true
+// 				}
+// 			}
+// 		}
+// 	}()
 
-	wg.Wait()
+// 	wg.Wait()
 
-	return true
-}
+// 	return true
+// }
 
-func CheckStatus(clientset *kubernetes.Clientset, studentName, image, timestamp string) bool {
-	name := strings.ToLower(image) + "-" + timestamp + "-" + studentName
+// func CheckStatus(clientset *kubernetes.Clientset, studentName, image, timestamp string) bool {
+// 	name := strings.ToLower(image) + "-" + timestamp + "-" + studentName
 
-	dpt, err := GetDeployment(clientset, name, studentName)
-	if err != nil {
-		fmt.Printf("\033[31mError getting Deployment: %v, maybe not exist\033[0m\n\n", err)
-		return false
-	}
+// 	dpt, err := GetDeployment(clientset, name, studentName)
+// 	if err != nil {
+// 		fmt.Printf("\033[31mError getting Deployment: %v, maybe not exist\033[0m\n\n", err)
+// 		return false
+// 	}
 
-	if dpt.Status.AvailableReplicas > 0 {
-		return true
-	}
+// 	if dpt.Status.AvailableReplicas > 0 {
+// 		return true
+// 	}
 
-	return false
-}
+// 	return false
+// }
