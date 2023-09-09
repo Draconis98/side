@@ -11,10 +11,20 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	if flag := UpdateContainerStatus(db, "container1", 0); flag {
-		log.Println("Update container status successfully")
-	} else {
-		log.Println("Update container status failed")
+	if flag := UpdateContainerCPU(db, "container1", 2); !flag {
+		log.Println("update failed")
+	}
+
+	if flag := UpdateContainerMem(db, "container1", 1024); !flag {
+		log.Println("update failed")
+	}
+
+	if flag := UpdateContainerImage(db, "container1", "image2", "based_image"); !flag {
+		log.Println("update failed")
+	}
+
+	if flag := UpdateContainerImage(db, "container1", "image3", "commit_image"); !flag {
+		log.Println("update failed")
 	}
 }
 
