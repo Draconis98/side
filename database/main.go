@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 )
@@ -12,9 +11,7 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	InsertUser(db, "test")
-
-	fmt.Println("InitDBConnection success")
+	DeleteUser(db, "Dolly")
 }
 
 func InitDBConnection() *sql.DB {
