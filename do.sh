@@ -15,7 +15,7 @@ IMAGE=quay.io/vouch/vouch-proxy:latest
 ALPINE=quay.io/vouch/vouch-proxy:alpine-latest
 GOIMAGE=golang:1.18
 NAME=vouch-proxy
-HTTPPORT=9090
+HTTPPORT=30998
 GODOC_PORT=5050
 
 run () {
@@ -345,7 +345,7 @@ profile() {
   echo "for profiling to work you may need to uncomment the code in main.go"
   build
   ./vouch-proxy -profile
-  go tool pprof -http=0.0.0.0:19091 http://0.0.0.0:9090/debug/pprof/profile?seconds=10
+  go tool pprof -http=0.0.0.0:19091 http://0.0.0.0:30998/debug/pprof/profile?seconds=10
 }
 
 gofmt() {

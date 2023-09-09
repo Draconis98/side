@@ -8,7 +8,7 @@ vouch:
   logLevel: info
   testing: false
   listen: 0.0.0.0
-  port: 9090
+  port: 30998
   socket_mode: 0660 
   # document_root:
   # domains:
@@ -21,7 +21,9 @@ vouch:
   idleTimeout: 15
   tls:
     # cert:
-    # key:
+    #  "certs/agileserve.org.cn.pem"
+    #key:
+    #  "certs/agileserve.org.cn.key"
     profile: intermediate
 
   jwt:
