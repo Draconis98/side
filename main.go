@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	 "log"
+	"log"
 	"main/api"
 )
 
@@ -13,7 +13,7 @@ func main() {
 	//r.POST("api/container", api.GetContainer)
 	r.POST("api/container/new", api.CreateContainer)
 	//r.POST("api/container/expand", api.ExpandContainer)
-	//r.POST("api/container/delete", api.DeleteContainer)
+	r.POST("api/container/delete", api.DeleteContainer)
 
 	log.Println("server stared.")
 
