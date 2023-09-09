@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"time"
 )
 
 func main() {
@@ -11,7 +12,8 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	InsertImage(db, "image1", "user1")
+	commitTime := time.Now().Unix()
+	InsertImage(db, "image1", "user1", commitTime)
 }
 
 func InitDBConnection() *sql.DB {
