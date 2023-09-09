@@ -18,3 +18,4 @@ config/testing/rsa.key
 config/testing/rsa.pub
 go.mod
 go.sum
+.idea/*
