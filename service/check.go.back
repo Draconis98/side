@@ -1,0 +1,105 @@
+package backend
+
+import (
+	"k8s.io/client-go/kubernetes"
+	"strings"
+	"sync"
+	"time"
+)
+
+func CheckSuccess(clientset *kubernetes.Clientset, studentName, image, timestamp string) bool {
+	name := strings.ToLower(image) + "-" + timestamp + "-" + studentName
+
+	flag := true
+
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	go func() {
+		defer wg.Done()
+
+		_, err := GetDeployment(clientset, name, studentName)
+		if err != nil {
+			flag = false
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		_, err := GetService(clientset, name, studentName)
+		if err != nil {
+			flag = false
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		_, err := GetIngress(clientset, name, studentName)
+		if err != nil {
+			flag = false
+		}
+	}()
+
+	wg.Wait()
+
+	return flag
+}
+
+func CheckEndLoading(clientset *kubernetes.Clientset, studentName, image, timestamp string) bool {
+	name := strings.ToLower(image) + "-" + timestamp + "-" + studentName
+
+    ingressReady := make(chan struct{})
+    deploymentReady := make(chan struct{})
+
+    go func() {
+        defer close(ingressReady)
+        for {
+            igs, err := GetIngress(clientset, name, studentName)
+            if err != nil {
+                panic(err.Error())
+            }
+            if igs.Status.LoadBalancer.Ingress != nil {
+                break
+            } 
+               time.Sleep(time.Second)
+            }
+    }()
+
+    go func() {
+        defer close(deploymentReady)
+        for {
+            dpt, err := GetDeployment(clientset, name, studentName)
+            if err != nil {
+                panic(err.Error())
+            }
+            if dpt.Status.AvailableReplicas > 0 {
+                break
+            }
+            time.Sleep(time.Second) // 轮询间隔
+        }
+    }()
+
+
+    // 等待两个通道都被关闭
+    <-ingressReady
+    <-deploymentReady
+
+    return true
+}
+
+func CheckStatus(clientset *kubernetes.Clientset, studentName, image, timestamp string) bool {
+	name := strings.ToLower(image) + "-" + timestamp + "-" + studentName
+
+	dpt, err := GetDeployment(clientset, name, studentName)
+	if err != nil {
+		return false
+	}
+
+	if dpt.Status.AvailableReplicas > 0 {
+		return true
+	}
+
+	return false
+}
