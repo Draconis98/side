@@ -71,7 +71,7 @@ func CreateContainer(c *gin.Context) {
 	// Here is a misc, do not change it.
 	containerId := strings.ToLower(creation.BaseImage) + "-" + createdAtStr + "-" + headerInfo.Username
 
-	// This function will always success (maybe take a long time).
+	// This function will always success.
 	service.Run(
 		headerInfo.Username,
 		creation.BaseImage,
@@ -79,6 +79,10 @@ func CreateContainer(c *gin.Context) {
 		creation.Core,
 		creation.Memory,
 	)
+	// This function will always success (maybe take a long time).
+	log.Println("Checking whether container status is OK.")
+	service.CheckEndLoading(headerInfo.Username, containerId)
+
 	// Write to database
 	database.InsertContainer(
 		containerId,
@@ -89,6 +93,7 @@ func CreateContainer(c *gin.Context) {
 		creation.Memory,
 		createdAt,
 	)
+
 	c.JSON(http.StatusOK, utils.Container{
 		ContainerId: containerId,
 		Core:        creation.Core,

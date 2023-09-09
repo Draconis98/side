@@ -23,6 +23,9 @@ func main() {
 	defer log.Println("Close DB")
 
 	r.LoadHTMLGlob("templates/*")
+	// r.Static("/", "static")
+
+	r.GET("/", Index)
 	r.GET("index", Index)
 	r.GET("api/container", api.GetContainer)
 	r.POST("api/container/new", api.CreateContainer)

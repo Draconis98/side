@@ -83,6 +83,11 @@ func ExpandContainer(c *gin.Context) {
 		})
 		return
 	}
+
+	// This function will always success (maybe take a long time).
+	log.Println("Checking whether container status is OK.")
+	service.CheckEndLoading(headerInfo.Username, expansion.ContainerId)
+
 	// Write to database
 	database.UpdateContainerInfo(
 		expansion.ContainerId,

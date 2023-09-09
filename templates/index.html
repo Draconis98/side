@@ -212,7 +212,7 @@
                                 </div>
                                 <el-submenu index="1">
                                     <el-menu-item index="1-1">进 入</el-menu-item>
-                                    <el-menu-item index="1-2" @click="openxpand">扩 容</el-menu-item>
+                                    <el-menu-item index="1-2">扩 容</el-menu-item>
                                     <el-menu-item index="1-3">删 除</el-menu-item>
                                 </el-submenu>
                             </el-menu>
@@ -224,7 +224,7 @@
                                 </div>
                                 <el-submenu index="1">
                                     <el-menu-item index="1-1">进 入</el-menu-item>
-                                    <el-menu-item index="1-2">删 除</el-menu-item>
+                                    <el-menu-item index="1-3">删 除</el-menu-item>
                                 </el-submenu>
                             </el-menu>
                         </template>
@@ -281,8 +281,8 @@
                     base_url: "http://10.130.10.34:5500",
                     newForm: {
                         baseImage: 'vscode',
-                        core: "2",
-                        memory: "4"
+                        core: 2,
+                        memory: 4
                         // customName: ""
                     },
                     activeIndex: '1',
@@ -331,12 +331,14 @@
             mounted() {
                 axios.get('/api/container').then(res => {
                     console.log('/api/container:',res);
-                    if (res.statusCode == 200) {
+                    if (res.status == 200) {
+                        console.log("successful");
                         //给this.userData赋值
                         // this.testGetData = response.data.return_data[0].content
+                        this.userData = res.data
                     } else {
                         //未查询出用户名，返回500服务器错误？？
-
+                        console.log(res.message)
                     }
                 }).catch(err => {
                     console.error('/api/container:',err);
@@ -345,16 +347,24 @@
             methods: {
                 onSubmit() {
                     this.seen = false
-                    axios.post('/api/container/new:', this.newForm)
+                    this.newForm.core=parseInt(this.newForm.core)
+                    this.newForm.memory=parseInt(this.newForm.memory)
+                    axios.post('/api/container/new', this.newForm)
                         .then(response => {
                             // 处理请求成功的响应数据
                             console.log('/api/container/new:',response);
-                            if (response.StatusCode == 200) {
+                            if (response.status == 200) {
                                 //创建容器成功
                                 console.log(response);
                                 //跳转
+                                let containerId = response.data.containerId
+                                let url = "http://"+containerId+".oms.agileserve.org.cn:30915"
+                                console.log(url);
+                                setTimeout(()=>{
+                                    window.location.href=url
+                                },3000)
                                 
-                            } else if (response.statusCode == 500) {
+                            } else if (response.status == 500) {
                                 //创建失败，处理错误
                                 console.log(response.message)
                             }
@@ -384,8 +394,8 @@
                         this.dialogFormVisible = true
                         this.expandForm = {
                             containerId: this.changeItem.containerId,
-                            core: this.changeItem.core,
-                            memory: this.changeItem.memory
+                            core: parseInt(this.changeItem.core),
+                            memory: parseInt(this.changeItem.memory)
                         }
                         this.cores = this.cores.filter(item => item.val >= this.expandForm.core);
                         this.memorys = this.memorys.filter(item => item.val >= this.expandForm.memory);
@@ -399,16 +409,17 @@
                         })
                             .then(res => {
                                 console.log('/api/container/delete:',res)
-                                if (res.statusCode == 200) {
+                                if (res.status == 200) {
                                     //删除成功，重新获取表格
                                     axios.get('/api/container').then(res => {
                                         console.log('/api/container:',res);
-                                        if (res.statusCode == 200) {
+                                        if (res.status == 200) {
                                             //给this.userData赋值
                                             // this.testGetData = response.data.return_data[0].content
+                                            this.userData = res.data
                                         } else {
                                             //未查询出用户名，返回500服务器错误？？
-
+                                            console.error(res.message)
                                         }
                                     }).catch(err => {
                                         console.error('/api/container/delete:',err);
@@ -451,29 +462,31 @@
                         { "label": "8G", "val": 8 },
                         { "label": "16G", "val": 16 }
                     ]
-                    if(this.expandForm.core == 0||this.expandForm.memory == 0){
+                    if(parseInt(this.expandForm.core) == 0||parseInt(this.expandForm.memory) == 0){
                         console.log('error submit!! cpu或内存不能为空');
-                        this.expandForm.core = this.changeItem.core
-                        this.expandForm.memory = this.changeItem.memory
+                        this.expandForm.core = parseInt(this.changeItem.core)
+                        this.expandForm.memory = parseInt(this.changeItem.memory)
                     }
                     axios.post('/api/container/expand', params = {
                         "containerId": this.expandForm.containerId,
-                        "newCore": this.expandForm.core,
-                        "newMemory": this.expandForm.memory
+                        "newCore": parseInt(this.expandForm.core),
+                        "newMemory": parseInt(this.expandForm.memory)
                     })
                         .then(res => {
                             console.log('/api/container/expand:',res)
-                            if (res.statusCode == 200) {
+                            if (res.status == 200) {
                                 //扩容成功
                                 //重新获取
                                 axios.get('/api/container').then(res => {
                                     console.log('/api/container:',res);
-                                    if (res.statusCode == 200) {
+                                    if (res.status == 200) {
                                         //给this.userData赋值
                                         // this.userData = response.data.return_data[0].content
+                                        this.userData = response.data
+
                                     } else {
                                         //未查询出用户名，返回500服务器错误？？
-
+                                        console.error(res.message)
                                     }
                                 }).catch(err => {
                                     console.error('/api/container:',err);
@@ -485,8 +498,8 @@
                         })
                 },
                 clearExpand(){
-                        this.expandForm.core = this.changeItem.core
-                        this.expandForm.memory = this.changeItem.memory
+                        this.expandForm.core = parseInt(this.changeItem.core)
+                        this.expandForm.memory = parseInt(this.changeItem.memory)
                 }
             }
         })
