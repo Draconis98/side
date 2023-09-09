@@ -19,6 +19,14 @@ func CreateContainer(c *gin.Context) {
 	c.BindHeader(&headerInfo)
 	log.Printf("Create container: %+v %+v\n", creation, headerInfo)
 
+	// Check if base image is valid.
+	if !database.CheckImageExists(creation.BaseImage) {
+		c.JSON(http.StatusBadRequest, utils.ErrorMessage{
+			Message: "BaseImage not exists, create container failed.",
+		})
+		return
+	}
+
 	// Get resource limitation.
 	coreLimit, memoryLimit := database.GetResourceLimitByUser(headerInfo.Username)
 	if coreLimit == -1 || memoryLimit == -1 {

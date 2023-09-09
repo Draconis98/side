@@ -5,6 +5,20 @@ import (
 	"main/utils"
 )
 
+func CheckImageExists(baseImage string) bool {
+	stmt, err := GetDBInstance().Prepare("SELECT image_name FROM image WHERE image_name = ?")
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	var image string
+	if err = stmt.QueryRow(baseImage).Scan(&image); err != nil {
+		return false
+	}
+
+	return true
+}
+
 func CheckUserExists(username string) bool {
 	stmt, err := GetDBInstance().Prepare("SELECT user_name FROM user WHERE user_name = ?")
 	if err != nil {

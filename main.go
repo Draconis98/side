@@ -5,6 +5,8 @@ import (
 	"main/api"
 	"main/database"
 	"main/service"
+	"main/utils"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +22,8 @@ func main() {
 	defer database.CloseDBConnection()
 	defer log.Println("Close DB")
 
-	r.GET("index", api.Index)
+	r.LoadHTMLGlob("templates/*")
+	r.GET("index", Index)
 	r.GET("api/container", api.GetContainer)
 	r.POST("api/container/new", api.CreateContainer)
 	r.POST("api/container/expand", api.ExpandContainer)
@@ -29,4 +32,18 @@ func main() {
 	log.Println("server stared.")
 
 	r.Run(":8000")
+}
+
+func Index(c *gin.Context) {
+	var headerInfo utils.HeaderInfo
+	c.BindHeader(&headerInfo)
+
+	// Ensure the user exist in database.
+	// So the user can create new container.
+	if !database.CheckUserExists(headerInfo.Username) {
+		log.Printf("Creating user %+v\n", headerInfo)
+		database.InsertUser(headerInfo.Username)
+	}
+
+	c.HTML(http.StatusOK, "index.html", gin.H{})
 }
