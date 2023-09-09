@@ -31,14 +31,14 @@ func InsertImage(db *sql.DB, imageName, userName string) {
 	}
 }
 
-func InsertContainer(db *sql.DB, containerName, userName, imageName string, cpu, memory int) {
+func InsertContainer(db *sql.DB, containerName, userName, imageName string, status, cpu, memory int) {
 	currentTime := time.Now()
-	stmt, err := db.Prepare("INSERT INTO container(container_name, user_name, last_visit, based_image, cpu, memory) VALUES(?, ?, ?, ?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO container(container_name, user_name, last_visit, based_image, status, cpu, memory) VALUES(?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	_, err = stmt.Exec(containerName, userName, currentTime, imageName, cpu, memory)
+	_, err = stmt.Exec(containerName, userName, currentTime, imageName, status, cpu, memory)
 	if err != nil {
 		log.Fatalln(err)
 	}
