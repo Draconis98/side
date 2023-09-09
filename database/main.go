@@ -11,10 +11,16 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	if flag := DeleteContainer(db, "container1"); flag {
-		log.Println("Delete container successfully")
+	if flag := SearchContainer(db, "container1"); flag {
+		log.Println("container1 exists")
 	} else {
-		log.Println("Delete container failed")
+		log.Println("container1 does not exist")
+	}
+
+	if flag := SearchImage(db, "image1"); flag {
+		log.Println("image1 exists")
+	} else {
+		log.Println("image1 does not exist")
 	}
 }
 
