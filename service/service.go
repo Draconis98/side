@@ -18,7 +18,8 @@ func GetService(clientset *kubernetes.Clientset, serviceName, namespace string) 
 	return serviceClient, nil
 }
 
-func CreateService(clientset *kubernetes.Clientset, service *corev1.Service, namespace string) (*corev1.Service, error) {
+func CreateService(service *corev1.Service, namespace string) (*corev1.Service, error) {
+	clientset := GetKubeClient()
 	// Get Service
 	serviceClient, err := GetService(clientset, service.Name, namespace)
 	if err != nil {

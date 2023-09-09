@@ -3,14 +3,15 @@ package service
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/utils/pointer"
-	"strconv"
-	"strings"
 )
 
 func GetDeployment(clientset *kubernetes.Clientset, deploymentName, namespace string) (*appsv1.Deployment, error) {
@@ -22,10 +23,8 @@ func GetDeployment(clientset *kubernetes.Clientset, deploymentName, namespace st
 	return deploymentClient, nil
 }
 
-func CreateDeployment(clientset *kubernetes.Clientset, deployment *appsv1.Deployment, namespace string) (*appsv1.Deployment, error) {
-	//// Get Deployment
-	//deploymentClient, err := GetDeployment(clientset, deployment.Name, namespace)
-	//if err != nil { // If not exist, create it
+func CreateDeployment(deployment *appsv1.Deployment, namespace string) (*appsv1.Deployment, error) {
+	clientset := GetKubeClient()
 	// Create Deployment
 	deploymentClient, err := clientset.AppsV1().Deployments(namespace).Create(context.TODO(), deployment, metav1.CreateOptions{})
 	if err != nil {
@@ -43,7 +42,7 @@ func RestoreDeployment(clientset *kubernetes.Clientset, deploymentName string, c
 	studentName := parts[2]
 
 	deployment := Deployment(deploymentName, image, strconv.Itoa(cpu), strconv.Itoa(memory)+"Gi", "restore")
-	_, err := CreateDeployment(clientset, deployment, studentName)
+	_, err := CreateDeployment(deployment, studentName)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -69,13 +68,13 @@ func DeleteDeployment(clientset *kubernetes.Clientset, deploymentName, namespace
 func Deployment(containerName, image, cpu, memory, flag string) *appsv1.Deployment {
 	var img string
 
-	if image == "VScode" {
-		if flag == "create" {
-			img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + strings.Split(containerName, "-")[2]
-		} else if flag == "restore" {
-			img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + containerName
-		}
-	}
+	// if image == "VScode" {
+	// if flag == "create" {
+	img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:vscode"
+	// } else if flag == "restore" {
+	// img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + containerName
+	// }
+	// }
 
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{Name: containerName, Labels: map[string]string{

@@ -2,15 +2,17 @@ package service
 
 import (
 	"flag"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
+
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
-var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+var kubeClient *kubernetes.Clientset
 
-func KubeConfig() *kubernetes.Clientset {
+func InitKubeClient() {
+	var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	if home := homeDir(); home != "" {
 		*kubeconfig = filepath.Join(home, ".kube", "config")
 	}
@@ -27,7 +29,11 @@ func KubeConfig() *kubernetes.Clientset {
 		panic(err.Error())
 	}
 
-	return clientset
+	kubeClient = clientset
+}
+
+func GetKubeClient() *kubernetes.Clientset {
+	return kubeClient
 }
 
 func homeDir() string {

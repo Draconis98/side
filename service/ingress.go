@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -17,7 +18,8 @@ func GetIngress(clientset *kubernetes.Clientset, ingressName, namespace string) 
 	return ingressClient, nil
 }
 
-func CreateIngress(clientset *kubernetes.Clientset, ingress *networkingv1.Ingress, namespace string) (*networkingv1.Ingress, error) {
+func CreateIngress(ingress *networkingv1.Ingress, namespace string) (*networkingv1.Ingress, error) {
+	clientset := GetKubeClient()
 	// Get Ingress
 	ingressClient, err := GetIngress(clientset, ingress.Name, namespace)
 	if err != nil { // If not exist, create it

@@ -2,13 +2,18 @@ package database
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func InitDBConnection() *sql.DB {
+var DB *sql.DB
+
+// Init the database connection. Call this funcion in main.go.
+func InitDBConnection() {
 	info := "side:Serve@123@tcp(10.30.19.15:3306)/side"
 	db, err := sql.Open("mysql", info)
+
 	if err != nil {
 		log.Fatalln(err) // connect to database failed
 	}
@@ -19,6 +24,15 @@ func InitDBConnection() *sql.DB {
 	if err = db.Ping(); err != nil {
 		log.Fatalln(err) // database is not alive
 	}
+	DB = db
+}
 
-	return db
+// Get the database instance.
+func GetDBInstance() *sql.DB {
+	return DB
+}
+
+// Close the database connection.
+func CloseDBConnection() {
+	DB.Close()
 }
