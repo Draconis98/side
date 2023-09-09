@@ -18,7 +18,7 @@ func InsertUser(db *sql.DB, userName string) {
 }
 
 func InsertImage(db *sql.DB, imageName, userName string, commitTime int64) {
-	stmt, err := db.Prepare("INSERT INTO image(image_name, user_name, commitTime) VALUES(?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO image(image_name, user_name, commit_time) VALUES(?, ?, ?)")
 	if err != nil {
 		log.Fatalln(err)
 	}
