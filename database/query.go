@@ -44,7 +44,7 @@ func GetResourceInfoByContainerId(containerId string) (int, int) {
 		return -1, -1
 	}
 
-	stmt, err := GetDBInstance().Prepare("SELECT cpu, memory FROM container WHERE container_id = ?")
+	stmt, err := GetDBInstance().Prepare("SELECT core, memory FROM container WHERE container_id = ?")
 	if err != nil {
 		log.Panicln(err)
 	}
