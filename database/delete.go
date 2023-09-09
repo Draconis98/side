@@ -16,3 +16,17 @@ func DeleteUser(db *sql.DB, userName string) {
 		log.Fatalln(err)
 	}
 }
+
+func DeleteContainer(db *sql.DB, containerName string) bool {
+	stmt, err := db.Prepare("DELETE FROM container WHERE container_name = ?")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	_, err = stmt.Exec(containerName)
+	if err != nil {
+		return false
+	}
+
+	return true
+}

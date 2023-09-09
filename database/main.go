@@ -11,7 +11,11 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	InsertContainer(db, "container1", "test", "image1", 1, 1, 1)
+	if flag := DeleteContainer(db, "container1"); flag {
+		log.Println("Delete container successfully")
+	} else {
+		log.Println("Delete container failed")
+	}
 }
 
 func InitDBConnection() *sql.DB {
