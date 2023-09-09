@@ -7,7 +7,7 @@ import (
 )
 
 func InsertUser(db *sql.DB) {
-	stmt, err := db.Prepare("INSERT INTO user(name) VALUES(?)")
+	stmt, err := db.Prepare("INSERT INTO user(user_name) VALUES(?)")
 	if err != nil {
 		log.Fatalln(err)
 	}
