@@ -11,7 +11,11 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	SearchUser(db, "test")
+	if flag := SearchUser(db, "test"); flag {
+		log.Println("user exists")
+	} else {
+		log.Println("user not exists")
+	}
 }
 
 func InitDBConnection() *sql.DB {
