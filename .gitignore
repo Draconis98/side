@@ -16,3 +16,5 @@ coverage.html.env_google
 .cover
 config/testing/rsa.key
 config/testing/rsa.pub
+go.mod
+go.sum
