@@ -11,11 +11,7 @@ func main() {
 	db := InitDBConnection()
 	defer db.Close()
 
-	if flag := SearchUser(db, "test"); flag {
-		log.Println("user exists")
-	} else {
-		log.Println("user not exists")
-	}
+	InsertImage(db, "image1", "user1")
 }
 
 func InitDBConnection() *sql.DB {

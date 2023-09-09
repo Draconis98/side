@@ -16,3 +16,15 @@ func InsertUser(db *sql.DB, userName string) {
 		log.Fatalln(err)
 	}
 }
+
+func InsertImage(db *sql.DB, imageName, userName string) {
+	stmt, err := db.Prepare("INSERT INTO image(image_name, user_name) VALUES(?, ?)")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	_, err = stmt.Exec(userName, imageName)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
