@@ -19,6 +19,24 @@ func SearchUser(db *sql.DB, userName string) bool {
 	return true
 }
 
+func SearchLimit(db *sql.DB, userName string) (int, int) {
+	if flag := SearchUser(db, userName); !flag {
+		return -1, -1
+	}
+
+	stmt, err := db.Prepare("SELECT cpu_limit, mem_limit FROM user WHERE user_name = ?")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var cpuLimit, memLimit int
+	if err = stmt.QueryRow(userName).Scan(&cpuLimit, &memLimit); err != nil {
+		return -1, -1
+	}
+
+	return cpuLimit, memLimit
+}
+
 func SearchImage(db *sql.DB, imageName string) bool {
 	stmt, err := db.Prepare("SELECT image_name FROM image WHERE image_name = ?")
 	if err != nil {
