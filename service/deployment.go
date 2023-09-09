@@ -71,10 +71,9 @@ func Deployment(containerName, image, cpu, memory, flag string) *appsv1.Deployme
 
 	if image == "VScode" {
 		if flag == "create" {
-			img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:vscode"
+			img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + strings.Split(containerName, "-")[2]
 		} else if flag == "restore" {
 			img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + containerName
-
 		}
 	}
 
