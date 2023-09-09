@@ -43,7 +43,6 @@ func ParseJson[T any](request *http.Request) T {
 	if err != nil {
 		log.Println(err)
 	}
-
 	return data
 }
 
