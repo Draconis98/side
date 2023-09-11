@@ -71,13 +71,15 @@ func DeleteDeployment(deploymentName, namespace string) bool {
 func Deployment(containerName, image, cpu, memory, flag string) *appsv1.Deployment {
 	var img string
 
-	// if image == "VScode" {
-	// if flag == "create" {
-	img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + strings.Split(containerName, "-")[2]
-	// } else if flag == "restore" {
-	// img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + containerName
-	// }
-	// }
+	if image == "vscode" {
+		// if flag == "create" {
+		img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:vscode"
+		// } else if flag == "restore" {
+		// img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + containerName
+		// }
+	} else if image == "cod" {
+		img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + strings.Split(containerName, "-")[2]
+	}
 
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{Name: containerName, Labels: map[string]string{
