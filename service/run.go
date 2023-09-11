@@ -55,7 +55,7 @@ func Run(studentName, image, timestamp string, cpu, mem int) {
 	go func() {
 		defer wg.Done()
 
-		ingress := Ingress(name, name+".oms.agileserve.org.cn")
+		ingress := Ingress(name, name+".side.agileserve.org.cn")
 		_, err := CreateIngress(ingress, studentName)
 		if err != nil {
 			panic(err.Error())
