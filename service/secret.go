@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"log"
 
 	corev1 "k8s.io/api/core/v1"
@@ -69,7 +70,7 @@ func Secret(namespace string) *corev1.Secret {
 		},
 		Type: corev1.SecretTypeDockerConfigJson,
 		Data: map[string][]byte{
-			".dockerconfigjson": []byte(log.Sprintf(
+			".dockerconfigjson": []byte(fmt.Sprintf(
 				`{"auths":{"%s":{"username":"%s","password":"%s","email":"%s","auth":"%s"}}}`,
 				dockerServer, dockerUsername, dockerPassword, dockerUsername, encodedAuth)),
 		},
