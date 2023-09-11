@@ -1,28 +1,19 @@
 <!DOCTYPE html>
-<link rel="icon" type="image/png" href="/img/favicon.ico" />
 <html>
 
 <head>
-    <!--need <link rel="stylesheet" href="{{ .DocumentRoot }}/static/css/main.css"> -->
-    <!-- 引入样式 -->
-    <!--<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">-->
-    <!--need <link rel="stylesheet" href="{{ .DocumentRoot }}/static/lib/element-ui/element-ui/lib/theme-chalk/index.css"> -->
     <!-- import Vue before Element -->
-    <!--<script src="https://unpkg.com/vue@2/dist/vue.js"></script>-->
-    <!--need <script src="{{ .DocumentRoot }}/static/lib/vue/vue.js"></script> -->
-    <!-- import JavaScript -->
-    <!--<script src="https://unpkg.com/element-ui/lib/index.js"></script>-->
-    <!--need <script src="{{ .DocumentRoot }}/static/lib/element-ui/element-ui/lib/index.js"></script>-->
-
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
-    <!-- 引入样式 -->
+    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+    <!-- <script src="./lib/vue/vue.js"></script> -->
+    <!-- import Element -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-
-    <!--cdn引入ElementUI组件必须先引入Vue-->
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <!-- cdn引入ElementUI组件库 -->
+    <!-- <link rel="stylesheet" href="./lib/element-ui/element-ui/lib/theme-chalk/index.css"> -->
+    <!-- import JavaScript -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- <script src="./lib/element-ui/element-ui/lib/index.js"></script> -->
+    <!-- import axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- <script src="./lib/axios/lib/axios.js"></script> -->
 
     <style>
         * {
@@ -130,6 +121,9 @@
 
         .tip {
             text-align: center;
+            font-size: 14px;
+            color: gray;
+            margin-top: 5px;
         }
 
         ul.el-menu-demo.el-menu--horizontal.el-menu--collapse.el-menu ul.el-menu-demo.el-menu--horizontal.el-menu--collapse.el-menu:hover {
@@ -139,6 +133,16 @@
         ul.el-menu-demo.el-menu--horizontal.el-menu--collapse.el-menu {
             border-bottom: none;
         }
+
+        .large-icon {
+            /*transform: scale(1.5);  增大图标大小 */
+            width: 64px;
+            height: 60px;
+        }
+
+        .el-menu--horizontal>.el-submenu .el-submenu__title {
+            padding: 0px;
+        }
     </style>
 </head>
 
@@ -147,15 +151,15 @@
     <div id="app">
         <div class="container">
             <div class="img-contain">
-                <image class="img-logo" src="./serve.png">
+                <image class="img-logo" src="./img/serve.png">
                 </image>
             </div>
             <div class="formContainer">
                 <el-form class="el-form_i" ref="newForm" :model="newForm" label-width="80px">
                     <el-form-item label-width="100px" label="基础镜像：">
                         <el-select v-model="newForm.baseImage">
-                            <el-option value="vscode">VSCode</el-option>
-                            <el-option value="ubuntu">Ubuntu</el-option>
+                            <el-option value="cod" label="2023春季学期COD教学环境"></el-option>
+                            <el-option value="vscode" label="VSCode在线编程IDE"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label-width="100px" label="核数配置：">
@@ -178,16 +182,17 @@
 
                     <el-form-item>
                         <div class="btn">
-                            <el-button v-if="seen==true" type="primary" @click="onSubmit('newForm')">立即创建</el-button>
-                            <el-button disabled v-else="seen==false" loading type="primary">正在创建</el-button>
-                            <el-button @click="clrSubmit('newForm')" :disabled="seen==false">重 置</el-button>
+                            <el-button v-if="createSeen==true" type="primary"
+                                @click="onSubmit('newForm')">立即创建</el-button>
+                            <el-button disabled v-else loading type="primary">正在创建</el-button>
+                            <el-button @click="clrSubmit('newForm')" :disabled="createSeen==false">重 置</el-button>
                         </div>
                     </el-form-item>
                 </el-form>
             </div>
             <div class="tableContainer">
                 <el-table v-loading="userTableLoading" :data="userData" @cell-click="clickMore" style="width: 100%">
-                    <el-table-column fixed align="center" prop="containerId" label="容器名称" width="150">
+                    <el-table-column fixed align="center" prop="containerId" label="容器名称" width="200">
                     </el-table-column>
                     <el-table-column prop="status" align="center" label="容器状态" width="90">
                         <template slot-scope="scope">
@@ -200,74 +205,59 @@
                     </el-table-column>
                     <el-table-column prop="memory" align="center" label="内存" width="100">
                     </el-table-column>
-                    <el-table-column align="center" label="操作" width="100" >
+                    <el-table-column align="center" label="操作" width="100">
                         <template slot-scope="scope">
-                            <el-menu v-if="scope.row.status === 1" :default-active="activeIndex" class="el-menu-demo"
-                                mode="horizontal" :collapse="true" menu-trigger="click" @select="handleSelect">
-                                <template slot="title">
-                                    <div @click="switchState" style="text-align: center;">
-                                      <i :class="switchArrow ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
-                                    </div>
-                                  </template>
-                                <el-submenu index="1">
-                                    <el-menu-item index="1-1">进 入</el-menu-item>
-                                    <el-menu-item index="1-2">扩 容</el-menu-item>
-                                    <el-menu-item index="1-3">删 除</el-menu-item>
-                                </el-submenu>
-                            </el-menu>
-                            <el-menu v-else :default-active="activeIndex" class="el-menu-demo" mode="horizontal"
+                            <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal"
                                 :collapse="true" menu-trigger="click" @select="handleSelect">
-                                <template slot="title">
-                                    <div @click="switchState" style="text-align: center;">
-                                      <i :class="switchArrow ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
-                                    </div>
-                                  </template>
                                 <el-submenu index="1">
-                                    <el-menu-item index="1-1">进 入</el-menu-item>
-                                    <el-menu-item index="1-3">删 除</el-menu-item>
+                                    <template slot="title">
+                                        <div @click="switchState(scope.$index)" style="text-align: center;"
+                                            class="large-icon">
+                                            <i
+                                                :class="switchArrows[scope.$index] ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+                                        </div>
+                                    </template>
+                                    <el-menu-item index="1-1">进入</el-menu-item>
+                                    <el-menu-item v-if="scope.row.status === 1" index="1-2">扩容</el-menu-item>
+                                    <el-menu-item index="1-3">删除</el-menu-item>
                                 </el-submenu>
                             </el-menu>
                         </template>
                     </el-table-column>
                 </el-table>
-                <el-dialog title="扩容" :visible.sync="dialogFormVisible" center>
+                <el-dialog title="扩容" :visible.sync="dialogFormVisible" :show-close=closeUseful
+                    :close-on-click-modal=closeUseful :close-on-press-escape=closeUseful center>
                     <el-form :model="expandForm">
-                        <el-form-item label="容器名称" :label-width="formLabelWidth">
-                            <el-input v-model="expandForm.containerId" autocomplete="off"></el-input>
+                        <el-form-item label="容器名称" :label-width="expandFormLabelWidth">
+                            <el-input disabled v-model="expandForm.containerId" autocomplete="off"></el-input>
                         </el-form-item>
-                        <el-form-item label="CPU" :label-width="formLabelWidth">
-                            <el-select v-model="expandForm.core">
-                                <el-option v-for="(val,idx) in cores" :label="val.label" :key="val.val"
-                                    :value="val.val"></el-option>
+                        <el-form-item label="CPU" :label-width="expandFormLabelWidth">
+                            <el-select v-model="expandForm.newCore">
+                                <el-option v-for="(val,idx) in cores" :label="parseInt(val)+'核'" :key="val"
+                                    :value="val"></el-option>
                             </el-select>
-                            <!-- <el-input v-model="expandForm.core" autocomplete="off"></el-input> -->
                         </el-form-item>
-                        <el-form-item label="内存" :label-width="formLabelWidth">
-                            <el-select v-model="expandForm.memory">
-                                <el-option v-for="(val,idx) in memorys" :label="val.label" :key="val.val"
-                                    :value="val.val"></el-option>
+                        <el-form-item label="内存" :label-width="expandFormLabelWidth">
+                            <el-select v-model="expandForm.newMemory">
+                                <el-option v-for="(val,idx) in memorys" :label="parseInt(val) +'G'" :key="val"
+                                    :value="val"></el-option>
                             </el-select>
-                            <!-- <el-option label="4G" value="4"></el-option>
-                                                <el-option label="8G" value="8"></el-option>
-                                                <el-option label="16G" value="16"></el-option> -->
-                            <!-- <el-input v-model="expandForm.memory" autocomplete="off"></el-input> -->
                         </el-form-item>
                     </el-form>
                     <div slot="footer" class="dialog-footer">
-                        <el-button type="primary" @click="handleExpand">确 定</el-button>
+                        <el-button type="primary" :disabled="expandSeen==false" @click="handleExpand">确 定</el-button>
                         <!-- <el-button @click="dialogFormVisible = false">取消</el-button> -->
-                        <el-button @click="clearExpand">重 置</el-button>
+                        <el-button :disabled="expandSeen==false" @click="clearExpand">重 置</el-button>
                     </div>
                 </el-dialog>
             </div>
         </div>
         <div class="footerContainer">
             <div>
-                <div class="tip">10核20G/人</div>
-                <div class="tip">遇到问题联系serve@ict.ac.cn</div>
+                <div class="tip">容器累计容量限制为10核20G/人，请谨慎申请和管理容器。</div>
+                <div class="tip">如有问题可联系管理员邮箱serve@ict.ac.cn。</div>
             </div>
         </div>
-        <!-- <el-button type="text" @click="dialogFormVisible = true">打开嵌套表单的 Dialog</el-button> -->
 
 
     </div>
@@ -278,260 +268,338 @@
             data: function () {
 
                 return {
-                    base_url: "http://10.130.10.34:5500",
+                    base_url: "",
+
+                    //restore form of create container
                     newForm: {
-                        baseImage: 'vscode',
+                        baseImage: 'cod',
                         core: "2",
                         memory: "4"
                         // customName: ""
                     },
+                    //restore status of create button
+                    createSeen: true,
+
+                    //restore history containers of the authorized user
+                    // userData: [],
+                    /**/userData: [{
+                        "containerId": "zhangsi1",
+                        "status": 0,//0,1,2
+                        "containerId": "vscode",
+                        "core": "4核",
+                        "memory": "8G"
+                    }, {
+                        "containerId": "vscode-20230908170614-loonghan",
+                        "status": 1,//0,1,2
+                        "containerId": "vscode",
+                        "core": "2核",
+                        "memory": "4G"
+                    }, {
+                        "containerId": "vscode-20230908170614-loonghan",
+                        "status": 1,//0,1,2
+                        "containerId": "vscode",
+                        "core": "4核",
+                        "memory": "8G"
+                    }],
+                    //loading attribute of history containers table
+                    userTableLoading: false,
+                    //restore the row user clicked
+                    changeItem: null,
                     activeIndex: '1',
-                    userData: [],
-                    // userData: [{
-                    //     "containerId": "zhangsi1",
-                    //     "status": 0,//0,1,2
-                    //     "baseImage": "vscode",
-                    //     "core": 4,
-                    //     "memory": 8
-                    // }, {
-                    //     "containerId": "vscode-20230908170614-loonghan",
-                    //     "status": 1,//0,1,2
-                    //     "baseImage": "vscode",
-                    //     "core": 2,
-                    //     "memory": 4
-                    // }, {
-                    //     "containerId": "vscode-20230908170614-loonghan",
-                    //     "status": 1,//0,1,2
-                    //     "baseImage": "vscode",
-                    //     "core": 4,
-                    //     "memory": 8
-                    // }],
-                    seen: true,
+                    idx: 0,
+                    //note the arrow status per row of user history container table
+                    switchArrows: [],
+                    //restore status of container clicked
+                    online: 1,
+
+                    //restore visibility attribute of dialog after click expand button
                     dialogFormVisible: false,
+                    //restore form data of expand dialog
                     expandForm: {
                         containerId: "",
-                        core: 0,
-                        memory: 0
+                        newCore: 0,
+                        newMemory: 0
                     },
-                    formLabelWidth: '120px',
-                    changeItem: null,//存储表格中用户点击的某行数据
-                    online: true,
-                    cores: [
-                        { "label": "2核", "val": "2" },
-                        { "label": "4核", "val": "4" },
-                        { "label": "8核", "val": "8" }
-                    ],
-                    memorys: [
-                        { "label": "4G", "val": "4" },
-                        { "label": "8G", "val": "8" },
-                        { "label": "16G", "val": "16" }
-                    ],
-                    switchArrow:false,
-                    userTableLoading:false,
+                    expandFormLabelWidth: '120px',
+                    //core option of expand dialog form 
+                    cores: ["2", "4", "8"],
+                    //memory option of expand dialog form 
+                    memorys: ["4", "8", "16"],
+                    //restore status of dialog create button 
+                    expandSeen: true,
+                    //close x of dialog
+                    closeUseful: false,
                 }
             },
             mounted() {
-                axios.get('/api/container').then(res => {
-                    console.log('/api/container:', res);
-                    if (res.status == 200) {
-                        console.log("successful");
-                        //给this.userData赋值
-                        // this.testGetData = response.data.return_data[0].content
-                        this.userData = res.data
+                //after get username, get history containers of the user before webpage loading
+                axios.get('/api/container').then(response => {
+                    if (response.status == 200) {
+                        console.log("get /api/container successful");
+                        this.userData = response.data
                     } else {
-                        //未查询出用户名，返回500服务器错误？？
-                        console.log(res.message)
+                        //未查询出用户名，返回服务器错误
+                        console.err(response.message)
+                        alert("服务器错误，请联系管理员！")
                     }
                 }).catch(err => {
-                    console.error('/api/container:', err);
+                    console.error('get /api/container failed', err);
+                    alert("服务器错误，请联系管理员！")
                 })
             },
             methods: {
+                //click button to create container
                 onSubmit() {
+                    this.createSeen = false
                     this.userTableLoading = true
-                    this.seen = false
-                    this.newForm.core = parseInt(this.newForm.core)
-                    this.newForm.memory = parseInt(this.newForm.memory)
-                    axios.post('/api/container/new', this.newForm)
+                    let params = {
+                        baseImage: this.newForm.baseImage,
+                        core: parseInt(this.newForm.core),
+                        memory: parseInt(this.newForm.memory),
+                    }
+                    axios.post('/api/container/new', params = params)
                         .then(response => {
                             // 处理请求成功的响应数据
-                            console.log('/api/container/new:', response);
+                            console.log('post /api/container/new successful');
                             if (response.status == 200) {
-                                //创建容器成功
-                                console.log(response);
-                                //跳转
+                                //创建容器成功并跳转
                                 let containerId = response.data.containerId
                                 let url = "http://" + containerId + ".oms.agileserve.org.cn:30915"
-                                console.log(url);
-                                setTimeout(() => {
+                                window.location.href = url
+                                // 等待页面跳转完成后关闭页面
+                                window.addEventListener('load', () => {
+                                    // 关闭当前页面
+                                    window.close();
+                                });
+                                /*setTimeout(() => {
                                     window.location.href = url
-                                }, 3000)
+                                }, 3000)*/
                                 axios.get('/api/container').then(res => {
-                                    console.log('/api/container:', res);
                                     if (res.status == 200) {
-                                        console.log("successful");
-                                        //给this.userData赋值
-                                        // this.testGetData = res.data.return_data[0].content
+                                        console.log("get /api/container successful");
                                         this.userData = res.data
                                     } else {
-                                        //未查询出用户名，返回500服务器错误？？
-                                        console.log(res.message)
+                                        console.error(res.message)
+                                        alert("服务器错误，请联系管理员！")
                                     }
                                 }).catch(err => {
-                                    console.error('/api/container:', err);
+                                    console.error('get /api/container failed', err);
+                                    alert("服务器错误，请联系管理员！")
                                 })
-                            } else if (response.status == 500) {
+                            } else if (response.message.status == 400) {
                                 //创建失败，处理错误
-                                console.error(response.message)
                                 alert("创建错误，资源超过限制！")
+                                console.error(response.message)
+                            } else {
+                                //创建失败，处理错误
+                                alert("服务器错误，请联系管理员！")
+                                console.error(response.message)
                             }
+                            this.createSeen = true
+                            this.userTableLoading = false
                         }).catch(error => {
                             // 处理请求失败
-                            console.log(this.newForm);//{baseImage: "vscode", core: "2", memory: "4"}
-                            console.error('/api/container/new:', error);
-                            this.seen = true
+                            alert("请重新操作，，请联系管理员！")
+                            console.error('post /api/container/new failed', error);
+                            this.createSeen = true
+                            this.userTableLoading = false
                         });
-                        
+
                 },
-                clrSubmit(idx) {
+                //click button to renew create container form
+                clrSubmit() {
                     this.newForm = {
-                        baseImage: 'vscode',
+                        baseImage: 'cod',
                         core: "2",
                         memory: "4"
                         // customName: ""
                     }
                 },
-                params2url(obj) {
-                    return Object.keys(obj).filter(v => Array.isArray(obj[v]) ? obj[v].length : obj[v]).map(v => `${v}=${obj[v]}`).join('&')
-                },
+                //get action of row menu
                 handleSelect(key, keyPath) {
-                    console.log(key, keyPath);
-                    //进入容器
+                    //enter container
                     if (key == '1-1') {
-                        // if()
+                        this.switchState(this.idx)
+                        this.createSeen = false
+                        this.userTableLoading = true
                         url = "http://" + this.changeItem.containerId + ".oms.agileserve.org.cn:30915"
-                        window.location.href = url
+                        if (this.online == 1) {
+                            window.location.href = url
+                            window.addEventListener('load', () => {
+                                window.close();
+                            });
+                        } else if (this.online == 0) {
+                            //离线，重新根据镜像创建容器
+                            setTimeout(() => {
+                                    // window.location.href = url
+                                }, 5000)
+                            let params = {
+                                baseImage: this.newForm.baseImage,
+                                core: parseInt(this.newForm.core),
+                                memory: parseInt(this.newForm.memory),
+                            }
+                            axios.post('/api/container/new', params = params)
+                                .then(response => {
+                                    // 处理请求成功的响应数据
+                                    console.log('post /api/container/new successful');
+                                    if (response.status == 200) {
+                                        //创建容器成功并跳转
+                                        let containerId = response.data.containerId
+                                        let url = "http://" + containerId + ".oms.agileserve.org.cn:30915"
+                                        window.location.href = url
+                                        window.addEventListener('load', () => {
+                                            window.close();
+                                        });
+                                        axios.get('/api/container').then(res => {
+                                            if (res.status == 200) {
+                                                console.log("get /api/container successful");
+                                                this.userData = res.data
+                                            } else {
+                                                console.error(res.message)
+                                                alert("服务器错误，请联系管理员！")
+                                            }
+                                        }).catch(err => {
+                                            console.error('get /api/container failed', err);
+                                            alert("服务器错误，请联系管理员！")
+                                        })
+                                    } else if (response.message.status == 400) {
+                                        //创建失败，处理错误
+                                        alert("创建错误，资源超过限制！")
+                                        console.error(response.message)
+                                    } else {
+                                        //创建失败，处理错误
+                                        alert("服务器错误，请联系管理员！")
+                                        console.error(response.message)
+                                    }
+                                    this.createSeen = true
+                                    this.userTableLoading = false
+                                }).catch(error => {
+                                    // 处理请求失败
+                                    alert("服务器错误，如多次尝试失败请联系管理员！")//TODO:离线算不算资源？
+                                    console.error('post /api/container/new failed', error);
+                                    this.createSeen = true
+                                    this.userTableLoading = false
+                                });
+                        } else {
+                            alert("服务器错误，请联系管理员！")
+                        }
                     }
-                    //扩容容器
+                    //expand container
                     if (key == '1-2') {
                         this.dialogFormVisible = true
                         this.expandForm = {
                             containerId: this.changeItem.containerId,
-                            core: parseInt(this.changeItem.core),
-                            memory: parseInt(this.changeItem.memory)
-                        }
-                        this.cores = this.cores.filter(item => item.val >= this.expandForm.core);
-                        this.memorys = this.memorys.filter(item => item.val >= this.expandForm.memory);
+                            newCore: this.changeItem.core + "核",
+                            newMemory: this.changeItem.memory + "G"
+                        },
+                            this.cores = this.cores.filter(item => item >= parseInt(this.changeItem.core));
+                        this.memorys = this.memorys.filter(item => item >= parseInt(this.changeItem.memory));
                     }
-                    console.log(this.dialogFormVisible);
-                    //删除容器
+                    //delete container
                     if (key == '1-3') {
-                        //this.userData()
                         axios.post('/api/container/delete', params = {
                             "containerId": this.changeItem.containerId
                         })
-                            .then(res => {
-                                console.log('/api/container/delete:', res)
-                                if (res.status == 200) {
+                            .then(response => {
+                                if (response.status == 200) {
+                                    console.log('post /api/container/delete successful')
                                     //删除成功，重新获取表格
                                     axios.get('/api/container').then(res => {
-                                        console.log('/api/container:', res);
+                                        console.log('get /api/containersuccessful');
                                         if (res.status == 200) {
-                                            //给this.userData赋值
-                                            // this.testGetData = response.data.return_data[0].content
                                             this.userData = res.data
                                         } else {
-                                            //未查询出用户名，返回500服务器错误？？
                                             console.error(res.message)
+                                            alert("服务器错误，请联系管理员！")
                                         }
                                     }).catch(err => {
-                                        console.error('/api/container/delete:', err);
+                                        console.error(res.message)
+                                        alert("服务器错误，请联系管理员！")
                                     })
+                                } else {
+                                    alert("删除失败，请稍后重试！")
                                 }
                             })
-                            .catch(err => {
-                                console.error('/api/container/delete:', err);
+                            .catch(error => {
+                                console.error('post /api/container/delete failed', error);
+                                alert("服务器错误，如多次尝试失败请联系管理员！")
                             })
                     }
                 },
-                switchState(){
-                    this.switchArrow = !this.switchArrow
+                //switch arrow status
+                switchState(index) {
+                    this.idx = index
+                    this.$set(this.switchArrows, index, !this.switchArrows[index]);
+                    // console.log(`Row ${index} arrow state: ${this.switchArrows[index]}`);
                 },
+                //click arrow icon of user history container table
                 clickMore(row, column, cell, event) {
-                    console.log(row);
-                    console.log(cell);
-                    if (row.status == 0) {
-                        //离线，请求重新创建
-                        // axios.post(url,params)
-                        // .then(res => {
-                        //     console.log(res)
-                        // })
-                        // .catch(err => {
-                        //     console.error(err); 
-                        // })        
-                    } else if (row.status == 1) {
-                        //在线，可以直接进入，赋值给变量online
-                        this.online = true
-                        this.changeItem = JSON.parse(JSON.stringify(row))
-                        console.log(this.changeItem);
-                    }
+                    this.changeItem = JSON.parse(JSON.stringify(row))
+                    this.online = row.status
                 },
+                //click ok button of expand dialog
                 handleExpand() {
-                    this.dialogFormVisible = false
-                    this.cores = [
-                        { "label": "2核", "val": 2 },
-                        { "label": "4核", "val": 4 },
-                        { "label": "8核", "val": 8 }
-                    ],
-                        this.memorys = [
-                            { "label": "4G", "val": 4 },
-                            { "label": "8G", "val": 8 },
-                            { "label": "16G", "val": 16 }
-                        ]
+                    this.expandSeen = false
+                    this.cores = [2, 4, 8]
+                    this.memorys = [4, 8, 16]
                     if (parseInt(this.expandForm.core) == 0 || parseInt(this.expandForm.memory) == 0) {
-                        console.log('error submit!! cpu或内存不能为空');
-                        this.expandForm.core = parseInt(this.changeItem.core)
-                        this.expandForm.memory = parseInt(this.changeItem.memory)
+                        console.log('expand form error submit! cpu or memory is null!');
+                        alert('cpu或内存不能为空，请重新选择!');
+                    } else {
+                        let params = {
+                            "containerId": this.expandForm.containerId,
+                            "newCore": parseInt(this.expandForm.newCore),
+                            "newMemory": parseInt(this.expandForm.newMemory)
+                        }
+                        console.log("expande container params:", params)
+                        axios.post('/api/container/expand', params = params)
+                            .then(response => {
+                                if (response.status == 200) {
+                                    console.log('post /api/container/expand successful')
+                                    //扩容成功并跳转
+                                    let containerId = response.data.containerId
+                                    let url = "http://" + containerId + ".oms.agileserve.org.cn:30915"
+                                    window.location.href = url
+                                    window.addEventListener('load', () => {
+                                        this.dialogFormVisible = false
+                                        window.close();
+                                    });
+                                    //重新获取
+                                    axios.get('/api/container').then(res => {
+                                        if (res.status == 200) {
+                                            console.log('get /api/container successful');
+                                            this.userData = res.data
+                                        } else {
+                                            //未查询出用户名，返回500服务器错误
+                                            console.error('get /api/container failed', err);
+                                            alert("服务器错误，请联系管理员！")
+                                        }
+                                    }).catch(err => {
+                                        console.error('get /api/container failed', err);
+                                        alert("服务器错误，请联系管理员！")
+                                    })
+                                    this.closeUseful = true
+                                } else {
+                                    alert("扩容错误，资源超过限制！")
+                                }
+                            })
+                            .catch(error => {
+                                console.error("post /api/container/expand failed", error);
+                                alert("服务器错误，如多次尝试失败请联系管理员！")
+                                this.expandSeen = true
+                                this.dialogFormVisible = false
+                                this.closeUseful = true
+                            })
                     }
-                    axios.post('/api/container/expand', params = {
-                        "containerId": this.expandForm.containerId,
-                        "newCore": parseInt(this.expandForm.core),
-                        "newMemory": parseInt(this.expandForm.memory)
-                    })
-                        .then(res => {
-                            console.log('/api/container/expand:', res)
-                            if (res.status == 200) {
-                                //扩容成功
-                                //重新获取
-                                axios.get('/api/container').then(res => {
-                                    console.log('/api/container:', res);
-                                    if (res.status == 200) {
-                                        //给this.userData赋值
-                                        // this.userData = response.data.return_data[0].content
-                                        this.userData = res.data
-                                        console.log("this.userData:",this.userData);
-
-                                    } else {
-                                        //未查询出用户名，返回500服务器错误？？
-                                        console.error(res.message)
-                                    }
-                                }).catch(err => {
-                                    console.error('/api/container:', err);
-                                })
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                        })
                 },
+                //renew expand form
                 clearExpand() {
-                    this.expandForm.core = parseInt(this.changeItem.core)
-                    this.expandForm.memory = parseInt(this.changeItem.memory)
+                    this.expandForm.newCore = this.changeItem.core
+                    this.expandForm.newMemory = this.changeItem.memory
                 }
             }
         })
     </script>
-
 </body>
 
 </html>

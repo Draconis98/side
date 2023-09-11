@@ -23,7 +23,13 @@ func main() {
 	defer log.Println("Close DB")
 
 	r.LoadHTMLGlob("templates/*")
-	r.StaticFile("/serve.png", "static/serve.png")
+	//r.StaticFile("/serve.png", "static/serve.png")
+	//r.StaticFile("/img/*", "static/img")
+	r.StaticFile("/lib/vue/vue.js", "static/lib/vue/vue.js")
+	r.StaticFile("/css/lib/element-ui/element-ui/lib/theme-chalk/index.css", "static/css/lib/element-ui/element-ui/lib/theme-chalk/index.css")
+	r.StaticFile("/lib/element-ui/element-ui/lib/index.js", "static/lib/element-ui/element-ui/lib/index.js")
+	r.StaticFile("/lib/axios/lib/axios.js", "static/lib/axios/lib/axios.js")
+	r.StaticFile("/img/serve.png", "static/img/serve.png")
 
 	r.GET("/", Index)
 	r.GET("index", Index)
