@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"log"
 
 	gitlab "github.com/xanzy/go-gitlab"
 )
@@ -9,7 +9,7 @@ import (
 func TriggerPipeline(node, containerName string) (bool, int) {
 	git, err := gitlab.NewClient("73UN5BsDyQXvsNUBW5qd", gitlab.WithBaseURL("https://gitlab.agileserve.org.cn:8001/api/v4"))
 	if err != nil {
-		fmt.Println("Error creating gitlab client:", err)
+		log.Println("Error creating gitlab client:", err)
 		return false, 0
 	}
 
@@ -32,11 +32,11 @@ func TriggerPipeline(node, containerName string) (bool, int) {
 		},
 	})
 	if err != nil {
-		fmt.Println("Error triggering pipeline:", err)
+		log.Println("Error triggering pipeline:", err)
 		return false, 0
 	}
 
-	fmt.Println("Pipeline triggered:", pipeline.ID, refName)
+	log.Println("Pipeline triggered:", pipeline.ID, refName)
 
 	return true, pipeline.ID
 }
@@ -44,7 +44,7 @@ func TriggerPipeline(node, containerName string) (bool, int) {
 func CheckPipelineStatus(pipelineID int) bool {
 	git, err := gitlab.NewClient("73UN5BsDyQXvsNUBW5qd", gitlab.WithBaseURL("https://gitlab.agileserve.org.cn:8001/api/v4"))
 	if err != nil {
-		fmt.Println("Error creating gitlab client:", err)
+		log.Println("Error creating gitlab client:", err)
 		return false
 	}
 
@@ -52,7 +52,7 @@ func CheckPipelineStatus(pipelineID int) bool {
 	for {
 		pipeline, _, err := git.Pipelines.GetPipeline("15101", pipelineID)
 		if err != nil {
-			fmt.Println("Error getting pipeline:", err)
+			log.Println("Error getting pipeline:", err)
 			return false
 		}
 
@@ -66,17 +66,17 @@ func CheckPipelineStatus(pipelineID int) bool {
 
 	switch status {
 	case "success":
-		fmt.Println("Pipeline success")
+		log.Println("Pipeline success")
 		return true
 	case "failed":
-		fmt.Println("Pipeline failed")
+		log.Println("Pipeline failed")
 		return false
 	case "canceled":
-		fmt.Println("Pipeline canceled")
+		log.Println("Pipeline canceled")
 		return false
 	}
 
-	fmt.Println("Pipeline status unknown")
+	log.Println("Pipeline status unknown")
 
 	return false
 }

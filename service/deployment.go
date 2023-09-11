@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -38,7 +37,7 @@ func CreateDeployment(deployment *appsv1.Deployment, namespace string) (*appsv1.
 }
 
 func RestoreDeployment(clientset *kubernetes.Clientset, deploymentName string, cpu, memory int) error {
-	defer fmt.Printf("Deployment %s \033[32mrestored\033[0m\n", deploymentName)
+	defer log.Printf("Deployment %s \033[32mrestored\033[0m\n", deploymentName)
 	parts := strings.Split(deploymentName, "-")
 	image := parts[0]
 	studentName := parts[2]
@@ -151,7 +150,7 @@ func ExpandRequirement(deploymentName, namespace string, oldCPU, oldMem, newCPU,
 	// Get Deployment
 	deployment, err := GetDeployment(deploymentName, namespace)
 	if err != nil {
-		fmt.Println("Error getting deployment:", err)
+		log.Println("Error getting deployment:", err)
 		return false
 	}
 

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -9,8 +9,8 @@ import (
 
 func Run(studentName, image, timestamp string, cpu, mem int) {
 	clientset := GetKubeClient()
-	fmt.Println("Creating k8s resources...")
-	defer fmt.Println("K8s resources created")
+	log.Println("Creating k8s resources...")
+	defer log.Println("K8s resources created")
 
 	name := strings.ToLower(image) + "-" + timestamp + "-" + studentName
 
@@ -19,14 +19,14 @@ func Run(studentName, image, timestamp string, cpu, mem int) {
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("Namespace %s \033[32mcreated\033[0m\n", studentName)
+	log.Printf("Namespace %s \033[32mcreated\033[0m\n", studentName)
 
 	secret := Secret(studentName)
 	_, err = CreateSecret(clientset, secret, studentName)
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("Secret %s \033[32mcreated\033[0m\n", secret.Name)
+	log.Printf("Secret %s \033[32mcreated\033[0m\n", secret.Name)
 
 	var wg sync.WaitGroup
 	wg.Add(3)
@@ -38,7 +38,7 @@ func Run(studentName, image, timestamp string, cpu, mem int) {
 		if err != nil {
 			panic(err.Error())
 		}
-		fmt.Printf("Deployment %s \033[32mcreated\033[0m\n", name)
+		log.Printf("Deployment %s \033[32mcreated\033[0m\n", name)
 	}() // Create Deployment
 
 	go func() {
@@ -49,7 +49,7 @@ func Run(studentName, image, timestamp string, cpu, mem int) {
 		if err != nil {
 			panic(err.Error())
 		}
-		fmt.Printf("Service %s \033[32mcreated\033[0m\n", name)
+		log.Printf("Service %s \033[32mcreated\033[0m\n", name)
 	}() // Create Service
 
 	go func() {
@@ -60,7 +60,7 @@ func Run(studentName, image, timestamp string, cpu, mem int) {
 		if err != nil {
 			panic(err.Error())
 		}
-		fmt.Printf("Ingress %s \033[32mcreated\033[0m\n", name)
+		log.Printf("Ingress %s \033[32mcreated\033[0m\n", name)
 	}() // Create Ingress
 
 	wg.Wait()

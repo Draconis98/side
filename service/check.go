@@ -1,13 +1,13 @@
 package service
 
 import (
-	"fmt"
+	"log"
 	"strings"
 	"sync"
 )
 
 //"time"
-//"fmt"
+//"log"
 
 // func CheckSuccess(clientset *kubernetes.Clientset, studentName, containerName string) bool {
 // 	containerName = strings.ToLower(containerName)
@@ -61,10 +61,10 @@ func CheckEndLoading(studentName, containerName string) bool {
 		for !flag {
 			dpt, err := GetDeployment(containerName, studentName)
 			if err != nil {
-				fmt.Printf("\033[31mError getting Deployment: %v\033[0m\n\n", err)
+				log.Printf("\033[31mError getting Deployment: %v\033[0m\n\n", err)
 			} else {
 				if dpt.Status.AvailableReplicas > 0 {
-					fmt.Println("\033[32mDeployment " + containerName + " is ready!\033[0m")
+					log.Println("\033[32mDeployment " + containerName + " is ready!\033[0m")
 					flag = true
 				}
 			}
@@ -77,10 +77,10 @@ func CheckEndLoading(studentName, containerName string) bool {
 		for !flag {
 			igs, err := GetIngress(containerName, studentName)
 			if err != nil {
-				fmt.Printf("\033[31mError getting Ingress: %v\033[0m\n\n", err)
+				log.Printf("\033[31mError getting Ingress: %v\033[0m\n\n", err)
 			} else {
 				if igs.Status.LoadBalancer.Ingress != nil {
-					fmt.Println("\033[32mIngress " + containerName + " is ready!\033[0m")
+					log.Println("\033[32mIngress " + containerName + " is ready!\033[0m")
 					flag = true
 				}
 			}
@@ -97,7 +97,7 @@ func CheckEndLoading(studentName, containerName string) bool {
 
 // 	dpt, err := GetDeployment(clientset, name, studentName)
 // 	if err != nil {
-// 		fmt.Printf("\033[31mError getting Deployment: %v, maybe not exist\033[0m\n\n", err)
+// 		log.Printf("\033[31mError getting Deployment: %v, maybe not exist\033[0m\n\n", err)
 // 		return false
 // 	}
 

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"sync"
@@ -9,7 +8,7 @@ import (
 
 func Delete(studentName, containerName string) { // studentName is the namespace containerName
 	log.Println("Deleting k8s resources...")
-	defer fmt.Println("K8s resources deleted")
+	defer log.Println("K8s resources deleted")
 
 	containerName = strings.ToLower(containerName)
 

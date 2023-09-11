@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
+	"log"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,8 +22,8 @@ func GetSecret(clientset *kubernetes.Clientset, namespace string) (*corev1.Secre
 func CreateSecret(clientset *kubernetes.Clientset, secret *corev1.Secret, namespace string) (*corev1.Secret, error) {
 	_, err := GetNamespace(clientset, namespace)
 	if err != nil { // If not exist, create it
-		fmt.Printf("Namespace %s \033[31mnot exist\n\033[0m", namespace)
-		fmt.Println("Secret \033[31mcreate failed\033[0m")
+		log.Printf("Namespace %s \033[31mnot exist\n\033[0m", namespace)
+		log.Println("Secret \033[31mcreate failed\033[0m")
 		return nil, err
 	}
 
@@ -69,7 +69,7 @@ func Secret(namespace string) *corev1.Secret {
 		},
 		Type: corev1.SecretTypeDockerConfigJson,
 		Data: map[string][]byte{
-			".dockerconfigjson": []byte(fmt.Sprintf(
+			".dockerconfigjson": []byte(log.Sprintf(
 				`{"auths":{"%s":{"username":"%s","password":"%s","email":"%s","auth":"%s"}}}`,
 				dockerServer, dockerUsername, dockerPassword, dockerUsername, encodedAuth)),
 		},
