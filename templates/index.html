@@ -105,8 +105,8 @@
             background-color: green;
         }
 
-        .grayCircle {
-            background-color: gray;
+        .orangeCircle {
+            background-color: #FF6723;
         }
 
         .footerContainer {
@@ -158,7 +158,7 @@
                 <el-form class="el-form_i" ref="newForm" :model="newForm" label-width="80px">
                     <el-form-item label-width="100px" label="基础镜像：">
                         <el-select v-model="newForm.baseImage">
-                            <el-option value="cod" label="2023春季学期COD教学环境"></el-option>
+                            <el-option value="cod" label="2023春季学期计算机组成原理教学环境"></el-option>
                             <el-option value="vscode" label="VSCode在线编程IDE"></el-option>
                         </el-select>
                     </el-form-item>
@@ -176,7 +176,7 @@
                             <el-option label="16G" value="16"></el-option>
                         </el-select>
                     </el-form-item>
-                    <!-- <el-form-item label-width="100px" label="容器名称：">
+                    <!-- <el-form-item label-width="100px" label="环境名称：">
                         <el-input class="marginLeft" v-model="newForm.customName" placeholder="请输入内容"></el-input>
                     </el-form-item> -->
 
@@ -192,18 +192,18 @@
             </div>
             <div class="tableContainer">
                 <el-table v-loading="userTableLoading" :data="userData" @cell-click="clickMore" style="width: 100%">
-                    <el-table-column fixed align="center" prop="containerId" label="容器名称" width="200">
+                    <el-table-column fixed align="center" prop="containerId" label="环境名称" width="200">
                     </el-table-column>
-                    <el-table-column prop="status" align="center" label="容器状态" width="90">
+                    <el-table-column prop="status" align="center" label="环境状态" width="90">
                         <template slot-scope="scope">
                             <i class="circle" :class="{'redCircle': scope.row.status === -1,
-                        'grayCircle': scope.row.status === 0,
+                        'orangeCircle': scope.row.status === 0,
                         'greenCircle': scope.row.status === 1}"></i>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="core" align="center" label="CPU" width="100">
+                    <el-table-column prop="core" align="center" label="CPU/核" width="100">
                     </el-table-column>
-                    <el-table-column prop="memory" align="center" label="内存" width="100">
+                    <el-table-column prop="memory" align="center" label="内存/G" width="100">
                     </el-table-column>
                     <el-table-column align="center" label="操作" width="100">
                         <template slot-scope="scope">
@@ -228,7 +228,7 @@
                 <el-dialog title="扩容" :visible.sync="dialogFormVisible" :show-close=closeUseful
                     :close-on-click-modal=closeUseful :close-on-press-escape=closeUseful center>
                     <el-form :model="expandForm">
-                        <el-form-item label="容器名称" :label-width="expandFormLabelWidth">
+                        <el-form-item label="环境名称" :label-width="expandFormLabelWidth">
                             <el-input disabled v-model="expandForm.containerId" autocomplete="off"></el-input>
                         </el-form-item>
                         <el-form-item label="CPU" :label-width="expandFormLabelWidth">
@@ -248,13 +248,14 @@
                         <el-button type="primary" :disabled="expandSeen==false" @click="handleExpand">确 定</el-button>
                         <!-- <el-button @click="dialogFormVisible = false">取消</el-button> -->
                         <el-button :disabled="expandSeen==false" @click="clearExpand">重 置</el-button>
+                        <el-button :disabled="expandSeen==false" type="primary" @click="cancelExpand">取 消</el-button>
                     </div>
                 </el-dialog>
             </div>
         </div>
         <div class="footerContainer">
             <div>
-                <div class="tip">容器累计容量限制为10核20G/人，请谨慎申请和管理容器。</div>
+                <div class="tip">环境累计资源限制为10核20G/人，请谨慎申请和管理环境。</div>
                 <div class="tip">如有问题可联系管理员邮箱serve@ict.ac.cn。</div>
             </div>
         </div>
@@ -269,10 +270,11 @@
 
                 return {
                     base_url: "",
+                    href_server: ".side.agileserve.org.cn:30915",
 
                     //restore form of create container
                     newForm: {
-                        baseImage: 'cod',
+                        baseImage: 'vscode',
                         core: "2",
                         memory: "4"
                         // customName: ""
@@ -281,8 +283,8 @@
                     createSeen: true,
 
                     //restore history containers of the authorized user
-                    // userData: [],
-                    /**/userData: [{
+                    userData: [],
+                    /*userData: [{
                         "containerId": "zhangsi1",
                         "status": 0,//0,1,2
                         "containerId": "vscode",
@@ -300,7 +302,7 @@
                         "containerId": "vscode",
                         "core": "4核",
                         "memory": "8G"
-                    }],
+                    }],*/
                     //loading attribute of history containers table
                     userTableLoading: false,
                     //restore the row user clicked
@@ -317,8 +319,8 @@
                     //restore form data of expand dialog
                     expandForm: {
                         containerId: "",
-                        newCore: 0,
-                        newMemory: 0
+                        newCore: "0",
+                        newMemory: "0"
                     },
                     expandFormLabelWidth: '120px',
                     //core option of expand dialog form 
@@ -332,22 +334,37 @@
                 }
             },
             mounted() {
-                //after get username, get history containers of the user before webpage loading
-                axios.get('/api/container').then(response => {
-                    if (response.status == 200) {
-                        console.log("get /api/container successful");
-                        this.userData = response.data
-                    } else {
-                        //未查询出用户名，返回服务器错误
-                        console.err(response.message)
-                        alert("服务器错误，请联系管理员！")
-                    }
-                }).catch(err => {
-                    console.error('get /api/container failed', err);
-                    alert("服务器错误，请联系管理员！")
-                })
+                this.newForm = {
+                    baseImage: 'cod',
+                    core: "2",
+                    memory: "4"
+                    // customName: ""
+                },
+                    //after get username, get history containers of the user before webpage loading
+                    axios.get('/api/container').then(response => {
+                        if (response.status == 200) {
+                            console.log("get /api/container successful");
+                            this.userData = response.data
+                        } else {
+                            //未查询出用户名，返回服务器错误
+                            console.err(response.message)
+                            alert(response.message)
+                        }
+                    }).catch(err => {
+                        console.error('get /api/container failed', err);
+                        alert("服务器错误，如多次尝试失败请联系管理员！")
+                    })
             },
             methods: {
+                //redirect
+                redirectIde(url) {
+                    window.location.href = url
+                    // 等待页面跳转完成后关闭页面
+                    window.addEventListener('load', () => {
+                        // 关闭当前页面
+                        window.close();
+                    });
+                },
                 //click button to create container
                 onSubmit() {
                     this.createSeen = false
@@ -362,44 +379,35 @@
                             // 处理请求成功的响应数据
                             console.log('post /api/container/new successful');
                             if (response.status == 200) {
-                                //创建容器成功并跳转
+                                //创建环境成功并跳转
                                 let containerId = response.data.containerId
-                                let url = "http://" + containerId + ".oms.agileserve.org.cn:30915"
-                                window.location.href = url
-                                // 等待页面跳转完成后关闭页面
-                                window.addEventListener('load', () => {
-                                    // 关闭当前页面
-                                    window.close();
-                                });
+                                let url = "http://" + containerId + this.href_server
+                                this.redirectIde(url)
                                 /*setTimeout(() => {
                                     window.location.href = url
                                 }, 3000)*/
-                                axios.get('/api/container').then(res => {
-                                    if (res.status == 200) {
-                                        console.log("get /api/container successful");
-                                        this.userData = res.data
-                                    } else {
-                                        console.error(res.message)
-                                        alert("服务器错误，请联系管理员！")
-                                    }
-                                }).catch(err => {
-                                    console.error('get /api/container failed', err);
-                                    alert("服务器错误，请联系管理员！")
-                                })
-                            } else if (response.message.status == 400) {
-                                //创建失败，处理错误
-                                alert("创建错误，资源超过限制！")
-                                console.error(response.message)
+                                // axios.get('/api/container').then(res => {
+                                //     if (res.status == 200) {
+                                //         console.log("get /api/container successful");
+                                //         this.userData = res.data
+                                //     } else {
+                                //         console.error(res.message)
+                                //         alert("服务器错误，如多次尝试失败请联系管理员！")
+                                //     }
+                                // }).catch(err => {
+                                //     console.error('get /api/container failed', err);
+                                //     alert("服务器错误，如多次尝试失败请联系管理员！")
+                                // })
                             } else {
                                 //创建失败，处理错误
-                                alert("服务器错误，请联系管理员！")
+                                alert(response.message)
                                 console.error(response.message)
                             }
                             this.createSeen = true
                             this.userTableLoading = false
                         }).catch(error => {
                             // 处理请求失败
-                            alert("请重新操作，，请联系管理员！")
+                            alert("服务器错误，如多次尝试失败请联系管理员！")
                             console.error('post /api/container/new failed', error);
                             this.createSeen = true
                             this.userTableLoading = false
@@ -422,17 +430,11 @@
                         this.switchState(this.idx)
                         this.createSeen = false
                         this.userTableLoading = true
-                        url = "http://" + this.changeItem.containerId + ".oms.agileserve.org.cn:30915"
                         if (this.online == 1) {
-                            window.location.href = url
-                            window.addEventListener('load', () => {
-                                window.close();
-                            });
+                            let url = "http://" + this.changeItem.containerId + this.href_server
+                            this.redirectIde(url)
                         } else if (this.online == 0) {
-                            //离线，重新根据镜像创建容器
-                            setTimeout(() => {
-                                    // window.location.href = url
-                                }, 5000)
+                            //离线，重新根据镜像创建环境
                             let params = {
                                 baseImage: this.newForm.baseImage,
                                 core: parseInt(this.newForm.core),
@@ -443,32 +445,24 @@
                                     // 处理请求成功的响应数据
                                     console.log('post /api/container/new successful');
                                     if (response.status == 200) {
-                                        //创建容器成功并跳转
+                                        //创建环境成功并跳转
                                         let containerId = response.data.containerId
-                                        let url = "http://" + containerId + ".oms.agileserve.org.cn:30915"
-                                        window.location.href = url
-                                        window.addEventListener('load', () => {
-                                            window.close();
-                                        });
-                                        axios.get('/api/container').then(res => {
-                                            if (res.status == 200) {
-                                                console.log("get /api/container successful");
-                                                this.userData = res.data
-                                            } else {
-                                                console.error(res.message)
-                                                alert("服务器错误，请联系管理员！")
-                                            }
-                                        }).catch(err => {
-                                            console.error('get /api/container failed', err);
-                                            alert("服务器错误，请联系管理员！")
-                                        })
-                                    } else if (response.message.status == 400) {
-                                        //创建失败，处理错误
-                                        alert("创建错误，资源超过限制！")
-                                        console.error(response.message)
+                                        let url = "http://" + containerId + this.href_server
+                                        this.redirectIde(url)
+                                        // axios.get('/api/container').then(res => {
+                                        //     if (res.status == 200) {
+                                        //         console.log("get /api/container successful");
+                                        //         this.userData = res.data
+                                        //     } else {
+                                        //         console.error(res.message)
+                                        //         alert("服务器错误，如多次尝试失败请联系管理员！")
+                                        //     }
+                                        // }).catch(err => {
+                                        //     console.error('get /api/container failed', err);
+                                        //     alert("服务器错误，如多次尝试失败请联系管理员！")
+                                        // })
                                     } else {
-                                        //创建失败，处理错误
-                                        alert("服务器错误，请联系管理员！")
+                                        alert(response.message)
                                         console.error(response.message)
                                     }
                                     this.createSeen = true
@@ -481,7 +475,7 @@
                                     this.userTableLoading = false
                                 });
                         } else {
-                            alert("服务器错误，请联系管理员！")
+                            alert("服务器错误，如多次尝试失败请联系管理员！")
                         }
                     }
                     //expand container
@@ -489,10 +483,10 @@
                         this.dialogFormVisible = true
                         this.expandForm = {
                             containerId: this.changeItem.containerId,
-                            newCore: this.changeItem.core + "核",
-                            newMemory: this.changeItem.memory + "G"
+                            newCore: this.changeItem.core+"",
+                            newMemory: this.changeItem.memory+""
                         },
-                            this.cores = this.cores.filter(item => item >= parseInt(this.changeItem.core));
+                        this.cores = this.cores.filter(item => item >= parseInt(this.changeItem.core));
                         this.memorys = this.memorys.filter(item => item >= parseInt(this.changeItem.memory));
                     }
                     //delete container
@@ -510,13 +504,14 @@
                                             this.userData = res.data
                                         } else {
                                             console.error(res.message)
-                                            alert("服务器错误，请联系管理员！")
+                                            alert(response.message)
                                         }
                                     }).catch(err => {
                                         console.error(res.message)
-                                        alert("服务器错误，请联系管理员！")
+                                        alert(res.message)
                                     })
                                 } else {
+                                    console.error(res.message)
                                     alert("删除失败，请稍后重试！")
                                 }
                             })
@@ -542,9 +537,12 @@
                     this.expandSeen = false
                     this.cores = [2, 4, 8]
                     this.memorys = [4, 8, 16]
-                    if (parseInt(this.expandForm.core) == 0 || parseInt(this.expandForm.memory) == 0) {
+                    if (parseInt(this.expandForm.newCore) == "0" || parseInt(this.expandForm.newMemory) == "0") {
                         console.log('expand form error submit! cpu or memory is null!');
                         alert('cpu或内存不能为空，请重新选择!');
+                    } else if (parseInt(this.expandForm.newCore) == this.changeItem.core && parseInt(this.expandForm.newMemory) == this.changeItem.memory) {
+                        let url = "http://" + this.changeItem.containerId + this.href_server
+                        this.redirectIde(url)
                     } else {
                         let params = {
                             "containerId": this.expandForm.containerId,
@@ -558,26 +556,22 @@
                                     console.log('post /api/container/expand successful')
                                     //扩容成功并跳转
                                     let containerId = response.data.containerId
-                                    let url = "http://" + containerId + ".oms.agileserve.org.cn:30915"
-                                    window.location.href = url
-                                    window.addEventListener('load', () => {
-                                        this.dialogFormVisible = false
-                                        window.close();
-                                    });
+                                    let url = "http://" + containerId + this.href_server
+                                    this.redirectIde(url)
                                     //重新获取
-                                    axios.get('/api/container').then(res => {
-                                        if (res.status == 200) {
-                                            console.log('get /api/container successful');
-                                            this.userData = res.data
-                                        } else {
-                                            //未查询出用户名，返回500服务器错误
-                                            console.error('get /api/container failed', err);
-                                            alert("服务器错误，请联系管理员！")
-                                        }
-                                    }).catch(err => {
-                                        console.error('get /api/container failed', err);
-                                        alert("服务器错误，请联系管理员！")
-                                    })
+                                    // axios.get('/api/container').then(res => {
+                                    //     if (res.status == 200) {
+                                    //         console.log('get /api/container successful');
+                                    //         this.userData = res.data
+                                    //     } else {
+                                    //         //未查询出用户名，返回500服务器错误
+                                    //         console.error('get /api/container failed', err);
+                                    //         alert("服务器错误，如多次尝试失败请联系管理员！")
+                                    //     }
+                                    // }).catch(err => {
+                                    //     console.error('get /api/container failed', err);
+                                    //     alert("服务器错误，如多次尝试失败请联系管理员！")
+                                    // })
                                     this.closeUseful = true
                                 } else {
                                     alert("扩容错误，资源超过限制！")
@@ -596,6 +590,10 @@
                 clearExpand() {
                     this.expandForm.newCore = this.changeItem.core
                     this.expandForm.newMemory = this.changeItem.memory
+                },
+                //cancel expand container
+                cancelExpand() {
+                    this.dialogFormVisible = false
                 }
             }
         })
