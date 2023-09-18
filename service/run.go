@@ -28,6 +28,15 @@ func Run(studentName, image, timestamp string, cpu, mem int) {
 	}
 	log.Printf("Secret %s \033[32mcreated\033[0m\n", secret.Name)
 
+  pvc := PVC(studentName)
+	if _, err = GetPVC(pvc.Name, studentName); err != nil {
+		_, err = CreatePVC(pvc, studentName)
+		if err != nil {
+			log.Panicln(err.Error())
+		}
+	}
+	log.Printf("PVC %s \033[32mcreated\033[0m\n", pvc.Name)
+
 	var wg sync.WaitGroup
 	wg.Add(3)
 	go func() {

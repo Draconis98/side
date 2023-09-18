@@ -118,12 +118,29 @@ func Deployment(containerName, image, cpu, memory, flag string) *appsv1.Deployme
 									corev1.ResourceCPU:    resource.MustParse(cpu),
 									corev1.ResourceMemory: resource.MustParse(memory),
 								},
+              },
+              VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "serve-eda-pvc",
+									MountPath: "/mnt/serve_eda",
+									ReadOnly:  true,
+								},
 							},
 						},
 					},
 					ImagePullSecrets: []corev1.LocalObjectReference{
 						{
 							Name: "image-repo",
+						},
+					},
+          Volumes: []corev1.Volume{
+						{
+							Name: "serve-eda-pvc",
+							VolumeSource: corev1.VolumeSource{
+								PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+									ClaimName: "serve-eda-pvc",
+								},
+							},
 						},
 					},
 				},
