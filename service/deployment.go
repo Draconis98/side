@@ -122,7 +122,7 @@ func Deployment(containerName, image, cpu, memory, flag string) *appsv1.Deployme
               VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "serve-eda-pvc",
-									MountPath: "/mnt/serve_eda",
+									MountPath: "/opt",
 									ReadOnly:  true,
 								},
 							},
