@@ -43,10 +43,10 @@ func PVC(namespace string) *corev1.PersistentVolumeClaim {
 			},
 			Resources: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
-					"storage": resource.MustParse("2Ti"),
+					"storage": resource.MustParse("1Gi"),
 				},
 			},
-			StorageClassName: pointer.String("standard"),
+			StorageClassName: pointer.String(namespace),
 		},
 	}
 }

@@ -28,7 +28,14 @@ func Run(studentName, image, timestamp string, cpu, mem int) {
 	}
 	log.Printf("Secret %s \033[32mcreated\033[0m\n", secret.Name)
 
-  pvc := PVC(studentName)
+	pv := PV(studentName)
+	if _, err = CreatePV(pv); err != nil {
+		log.Println(err.Error())
+	} else {
+		log.Printf("PV %s \033[32mcreated\033[0m\n", pv.Name)
+	}
+
+	pvc := PVC(studentName)
 	if _, err = GetPVC(pvc.Name, studentName); err != nil {
 		_, err = CreatePVC(pvc, studentName)
 		if err != nil {
