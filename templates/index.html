@@ -3,17 +3,17 @@
 
 <head>
     <!-- import Vue before Element -->
-    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
-    <!-- <script src="./lib/vue/vue.js"></script> -->
+    <!-- <script src="https://unpkg.com/vue@2/dist/vue.js"></script> -->
+    <script src="./lib/vue/vue.js"></script>
     <!-- import Element -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <!-- <link rel="stylesheet" href="./lib/element-ui/element-ui/lib/theme-chalk/index.css"> -->
+    <!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> -->
+    <link rel="stylesheet" href="./lib/element-ui/element-ui/lib/theme-chalk/index.css">
     <!-- import JavaScript -->
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <!-- <script src="./lib/element-ui/element-ui/lib/index.js"></script> -->
+    <!-- <script src="https://unpkg.com/element-ui/lib/index.js"></script> -->
+    <script src="./lib/element-ui/element-ui/lib/index.js"></script>
     <!-- import axios -->
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <!-- <script src="./lib/axios/lib/axios.js"></script> -->
+    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+    <script src="./lib/axios/dist/axios.min.js"></script>
 
     <style>
         * {
@@ -158,8 +158,8 @@
                 <el-form class="el-form_i" ref="newForm" :model="newForm" label-width="80px">
                     <el-form-item label-width="100px" label="基础镜像：">
                         <el-select v-model="newForm.baseImage">
-                            <el-option value="cod" label="2023春季学期计算机组成原理教学环境"></el-option>
                             <el-option value="vscode" label="VSCode在线编程IDE"></el-option>
+                            <el-option value="cod" label="2023春季学期计算机组成原理教学环境"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label-width="100px" label="核数配置：">
@@ -335,7 +335,7 @@
             },
             mounted() {
                 this.newForm = {
-                    baseImage: 'cod',
+                    baseImage: 'vscode',
                     core: "2",
                     memory: "4"
                     // customName: ""
@@ -417,7 +417,7 @@
                 //click button to renew create container form
                 clrSubmit() {
                     this.newForm = {
-                        baseImage: 'cod',
+                        baseImage: 'vscode',
                         core: "2",
                         memory: "4"
                         // customName: ""
