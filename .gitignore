@@ -19,3 +19,5 @@ config/testing/rsa.pub
 go.mod
 go.sum
 .idea/*
+*.out.*
+*.out
