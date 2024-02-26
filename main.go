@@ -55,5 +55,5 @@ func Index(c *gin.Context) {
 		database.InsertUser(headerInfo.Username)
 	}
 
-	c.HTML(http.StatusOK, "index.html", gin.H{})
+	c.HTML(http.StatusOK, "error.html", gin.H{})
 }
