@@ -41,7 +41,7 @@ func main() {
 
 	log.Println("server stared.")
 
-	r.Run(":8000")
+	r.Run(":8001")
 }
 
 func Index(c *gin.Context) {

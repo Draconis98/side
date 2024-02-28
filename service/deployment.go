@@ -72,7 +72,7 @@ func Deployment(containerName, image, cpu, memory, flag string) *appsv1.Deployme
 
 	if image == "vscode" {
 		// if flag == "create" {
-    img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:vscode"
+    img = "10.30.19.15:30916/side/vscode:latest"
 		// } else if flag == "restore" {
 		// img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + containerName
 		// }
@@ -201,7 +201,7 @@ func ExpandRequirement(deploymentName, namespace string, oldCPU, oldMem, newCPU,
 		deployment.Spec.Template.Spec.Containers[0].Resources.Requests["memory"] = resource.MustParse(strconv.Itoa(newMem) + "Gi")
 	}
 
-  deployment.Spec.Template.Spec.Containers[0].Image = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + deploymentName
+  deployment.Spec.Template.Spec.Containers[0].Image = "10.30.19.15:30916/side/" + strings.Split(deploymentName, "-")[0] + deploymentName[strings.Index(deploymentName,"-")+1:]
 
 	// Update Deployment
 	if _, err = clientset.AppsV1().Deployments(namespace).Update(context.TODO(), deployment, metav1.UpdateOptions{}); err != nil {
