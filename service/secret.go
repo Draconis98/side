@@ -56,7 +56,7 @@ func DeleteSceret(clientset *kubernetes.Clientset, namespace string) error {
 }
 
 func Secret(namespace string) *corev1.Secret {
-  dockerServer := "https://gitlab.agileserve.org.cn:15050/zhangsi/sidehub"
+  // dockerServer := "https://gitlab.agileserve.org.cn:15050/zhangsi/sidehub"
 	// dockerUsername := "loonghan@foxmail.com"
 	// dockerPassword := "h2022shtech#"
   dockerServer := "10.30.19.15:30916"

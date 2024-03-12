@@ -41,7 +41,7 @@ func main() {
 
 	log.Println("server stared.")
 
-	r.Run(":8001")
+	r.Run(":8000")
 }
 
 func Index(c *gin.Context) {
@@ -55,5 +55,5 @@ func Index(c *gin.Context) {
 		database.InsertUser(headerInfo.Username)
 	}
 
-	c.HTML(http.StatusOK, "error.html", gin.H{})
+	c.HTML(http.StatusOK, "index.html", gin.H{})
 }

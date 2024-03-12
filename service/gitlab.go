@@ -2,12 +2,13 @@ package service
 
 import (
 	"log"
+  "os"
 
 	gitlab "github.com/xanzy/go-gitlab"
 )
 
 func TriggerPipeline(node, containerName string) (bool, int) {
-	git, err := gitlab.NewClient("73UN5BsDyQXvsNUBW5qd", gitlab.WithBaseURL("https://gitlab.agileserve.org.cn:8001/api/v4"))
+	git, err := gitlab.NewClient(os.Getenv("SIDE_GITLAB_TOKEN"), gitlab.WithBaseURL("https://gitlab.agileserve.org.cn:8001/api/v4"))
 	if err != nil {
 		log.Println("Error creating gitlab client:", err)
 		return false, 0
@@ -42,7 +43,7 @@ func TriggerPipeline(node, containerName string) (bool, int) {
 }
 
 func CheckPipelineStatus(pipelineID int) bool {
-	git, err := gitlab.NewClient("73UN5BsDyQXvsNUBW5qd", gitlab.WithBaseURL("https://gitlab.agileserve.org.cn:8001/api/v4"))
+	git, err := gitlab.NewClient(os.Getenv("SIDE_GITLAB_TOKEN"), gitlab.WithBaseURL("https://gitlab.agileserve.org.cn:8001/api/v4"))
 	if err != nil {
 		log.Println("Error creating gitlab client:", err)
 		return false
