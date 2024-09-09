@@ -11,7 +11,7 @@ var DB *sql.DB
 
 // Init the database connection. Call this funcion in main.go.
 func InitDBConnection() {
-	info := "side:Serve@123@tcp(10.30.19.15:3306)/side"
+	info := ""
 	db, err := sql.Open("mysql", info)
 
 	if err != nil {

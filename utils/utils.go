@@ -31,3 +31,9 @@ type ContainerExpansion struct {
 type ContainerDeletion struct {
 	ContainerId string `json:"containerId"`
 }
+
+type ContainerRestore struct {
+	ContainerId string `json:"containerId"`
+	Core        int    `json:"core"`
+	Memory      int    `json:"core"`
+}

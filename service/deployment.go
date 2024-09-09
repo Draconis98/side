@@ -36,11 +36,12 @@ func CreateDeployment(deployment *appsv1.Deployment, namespace string) (*appsv1.
 	return deploymentClient, nil
 }
 
-func RestoreDeployment(clientset *kubernetes.Clientset, deploymentName string, cpu, memory int) error {
+func RestoreDeployment(deploymentName string, cpu, memory int) error {
 	defer log.Printf("Deployment %s \033[32mrestored\033[0m\n", deploymentName)
 	parts := strings.Split(deploymentName, "-")
-	image := parts[0]
-	studentName := parts[2]
+	log.Println(parts)
+	image := "10.30.19.15:30916/side/" + parts[0] + ":" + parts[1] + "-" + parts[2]
+	studentName := strings.Join(parts[2:], "-")
 
 	deployment := Deployment(deploymentName, image, strconv.Itoa(cpu), strconv.Itoa(memory)+"Gi", "restore")
 	_, err := CreateDeployment(deployment, studentName)
@@ -72,15 +73,17 @@ func Deployment(containerName, image, cpu, memory, flag string) *appsv1.Deployme
 
 	if image == "vscode" {
 		// if flag == "create" {
-    img = "10.30.19.15:30916/side/vscode:gitpod"
+		img = "10.30.19.15:30916/side/vscode:gitpod"
 		// } else if flag == "restore" {
 		// img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + containerName
 		// }
 	} else if image == "cod" {
 		img = "gitlab.agileserve.org.cn:15050/zhangsi/sidehub:" + strings.Split(containerName, "-")[2]
 	} else if image == "teach" {
-    img = "10.30.19.15:30916/side/vscode:latest"
-  }
+		img = "10.30.19.15:30916/side/vscode:codwithos"
+	} else {
+		img = image
+	}
 
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{Name: containerName, Labels: map[string]string{
@@ -203,7 +206,7 @@ func ExpandRequirement(deploymentName, namespace string, oldCPU, oldMem, newCPU,
 		deployment.Spec.Template.Spec.Containers[0].Resources.Requests["memory"] = resource.MustParse(strconv.Itoa(newMem) + "Gi")
 	}
 
-  deployment.Spec.Template.Spec.Containers[0].Image = "10.30.19.15:30916/side/" + strings.Split(deploymentName, "-")[0] + ":" + deploymentName[strings.Index(deploymentName,"-")+1:]
+	deployment.Spec.Template.Spec.Containers[0].Image = "10.30.19.15:30916/side/" + strings.Split(deploymentName, "-")[0] + ":" + deploymentName[strings.Index(deploymentName, "-")+1:]
 
 	// Update Deployment
 	if _, err = clientset.AppsV1().Deployments(namespace).Update(context.TODO(), deployment, metav1.UpdateOptions{}); err != nil {

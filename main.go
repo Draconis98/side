@@ -38,6 +38,7 @@ func main() {
 	r.POST("api/container/new", api.CreateContainer)
 	r.POST("api/container/expand", api.ExpandContainer)
 	r.POST("api/container/delete", api.DeleteContainer)
+	r.POST("api/container/restore", api.RestoreContainer)
 
 	log.Println("server stared.")
 

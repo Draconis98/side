@@ -144,6 +144,12 @@
         .el-menu--horizontal > .el-submenu .el-submenu__title {
             padding: 0px;
         }
+        .right{
+            height: 30px;
+            width: 115px;
+            right: 20%;
+            position: absolute;
+        }
     </style>
 </head>
 
@@ -151,17 +157,23 @@
 
 <div id="app">
     <div class="container">
+        <div class="right">
+            <el-select v-model="language">
+                <el-option value="chinese" label="简体中文"></el-option>
+                <el-option value="english" label="English"></el-option>
+            </el-select>
+        </div>
         <div class="img-contain">
             <image class="img-logo" src="./img/serve.png">
             </image>
         </div>
-        <div class="formContainer">
+        <div class="formContainer" v-if="language=='chinese'">
             <el-form class="el-form_i" ref="newForm" :model="newForm" label-width="80px">
                 <el-form-item label-width="100px" label="基础镜像：">
                     <el-select v-model="newForm.baseImage">
                         <el-option value="teach" label="2024教学开发环境"></el-option>
                         <el-option value="vscode" label="VSCode在线编程IDE"></el-option>
-                        <el-option value="cod" label="2023计算机组成原理教学环境（仅限2023选课的学生）"></el-option>
+			<!--<el-option value="cod" label="2023计算机组成原理教学环境（仅限2023选课的学生）"></el-option>-->
                     </el-select>
                 </el-form-item>
                 <el-form-item label-width="100px" label="核数配置：">
@@ -193,7 +205,41 @@
                 </el-form-item>
             </el-form>
         </div>
-        <div class="tableContainer">
+        <div class="formContainer" v-else>
+            <el-form class="el-form_i" ref="newForm" :model="newForm" label-width="80px">
+                <el-form-item label-width="100px" label="Image：">
+                    <el-select v-model="newForm.baseImage">
+                        <el-option value="teach" label="2024 teach dev"></el-option>
+                        <el-option value="vscode" label="VSCode IDE"></el-option>
+			<!--<el-option value="cod" label="2023计算机组成原理教学环境（仅限2023选课的学生）"></el-option>-->
+                    </el-select>
+                </el-form-item>
+                <el-form-item label-width="100px" label="Core ：">
+                    <el-select v-model="newForm.core">
+                        <el-option label="2 core" value="2"></el-option>
+                        <el-option label="4 core" value="4"></el-option>
+                        <el-option label="8 core" value="8"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label-width="100px" label="Mem ：">
+                    <el-select v-model="newForm.memory">
+                        <el-option label="4G" value="4"></el-option>
+                        <el-option label="8G" value="8"></el-option>
+                        <el-option label="16G" value="16"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <div class="btn">
+                        <el-button v-if="createSeen==true" type="primary"
+                                   @click="onSubmit('newForm')">create
+                        </el-button>
+                        <el-button disabled v-else loading type="primary">creating</el-button>
+                        <el-button @click="clrSubmit('newForm')" :disabled="createSeen==false">clear</el-button>
+                    </div>
+                </el-form-item>
+            </el-form>
+        </div>
+        <div class="tableContainer"  v-if="language=='chinese'">
             <el-table v-loading="userTableLoading" :data="userData" @cell-click="clickMore" style="width: 100%">
                 <el-table-column fixed align="center" prop="containerId" label="环境名称" width="200">
                 </el-table-column>
@@ -228,6 +274,7 @@
                     </template>
                 </el-table-column>
             </el-table>
+            
             <el-dialog title="扩容" :visible.sync="dialogFormVisible" :show-close=closeUseful
                        :close-on-click-modal=closeUseful :close-on-press-escape=closeUseful center>
                 <el-form :model="expandForm">
@@ -255,11 +302,79 @@
                 </div>
             </el-dialog>
         </div>
+        <div class="tableContainer" v-else>
+            <el-table v-loading="userTableLoading" :data="userData" @cell-click="clickMore" style="width: 100%">
+                <el-table-column fixed align="center" prop="containerId" label="Env Name" width="200">
+                </el-table-column>
+                <el-table-column prop="status" align="center" label="Env Stat" width="90">
+                    <template slot-scope="scope">
+                        <i class="circle" :class="{'redCircle': scope.row.status === -1,
+                        'orangeCircle': scope.row.status === 0,
+                        'greenCircle': scope.row.status === 1}"></i>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="core" align="center" label="CPU/core" width="100">
+                </el-table-column>
+                <el-table-column prop="memory" align="center" label="Mem/G" width="100">
+                </el-table-column>
+                <el-table-column align="center" label="Operations" width="100">
+                    <template slot-scope="scope">
+                        <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal"
+                                 :collapse="true" menu-trigger="click" @select="handleSelect">
+                            <el-submenu index="1">
+                                <template slot="title">
+                                    <div @click="switchState(scope.$index)" style="text-align: center;"
+                                         class="large-icon">
+                                        <i
+                                                :class="switchArrows[scope.$index] ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+                                    </div>
+                                </template>
+                                <el-menu-item index="1-1">Enter</el-menu-item>
+                                <el-menu-item v-if="scope.row.status === 1" index="1-2" disabled>Enlarge</el-menu-item>
+                                <el-menu-item index="1-3">Delete</el-menu-item>
+                            </el-submenu>
+                        </el-menu>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <el-dialog title="enlarge" :visible.sync="dialogFormVisible" :show-close=closeUseful
+                       :close-on-click-modal=closeUseful :close-on-press-escape=closeUseful center>
+                <el-form :model="expandForm">
+                    <el-form-item label="Env Name" :label-width="expandFormLabelWidth">
+                        <el-input disabled v-model="expandForm.containerId" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="CPU" :label-width="expandFormLabelWidth">
+                        <el-select v-model="expandForm.newCore">
+                            <el-option v-for="(val,idx) in cores" :label="parseInt(val)+'core'" :key="val"
+                                       :value="val"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="Mem" :label-width="expandFormLabelWidth">
+                        <el-select v-model="expandForm.newMemory">
+                            <el-option v-for="(val,idx) in memorys" :label="parseInt(val) +'G'" :key="val"
+                                       :value="val"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button type="primary" :disabled="expandSeen==false" @click="handleExpand">OK</el-button>
+                    <!-- <el-button @click="dialogFormVisible = false">取消</el-button> -->
+                    <el-button :disabled="expandSeen==false" @click="clearExpand">Clear</el-button>
+                    <el-button :disabled="expandSeen==false" type="primary" @click="cancelExpand">Cancel</el-button>
+                </div>
+            </el-dialog>
+        </div>
     </div>
-    <div class="footerContainer">
+    <div class="footerContainer"  v-if="language=='chinese'">
         <div>
             <div class="tip">环境累计资源限制为10核20G/人，请谨慎申请和管理环境。</div>
             <div class="tip">如有问题可联系管理员邮箱serve@ict.ac.cn。</div>
+        </div>
+    </div>
+    <div class="footerContainer" v-else>
+        <div>
+            <div class="tip">The cumulative resource limit of the environment is 10 cores and 20 G per person.</div>
+            <div class="tip">If you have any questions, please contact the administrator for email serve@ict.ac.cn.</div>
         </div>
     </div>
 
@@ -272,6 +387,7 @@
         data: function () {
 
             return {
+                language: "chinese",
                 base_url: "",
                 href_server: ".side.agileserve.org.cn:30915",
 
@@ -384,6 +500,7 @@
                         if (response.status == 200) {
                             //创建环境成功并跳转
                             let containerId = response.data.containerId
+			    console.log(response.data)
                             let url = "https://" + containerId + this.href_server
                             this.redirectIde(url)
                             /*setTimeout(() => {
@@ -439,16 +556,17 @@
                     } else if (this.online == 0) {
                         //离线，重新根据镜像创建环境
                         let params = {
-                            baseImage: this.newForm.baseImage,
-                            core: parseInt(this.newForm.core),
-                            memory: parseInt(this.newForm.memory),
+                            containerId: this.changeItem.containerId,
+                            core: parseInt(this.changeItem.core),
+                            memory: parseInt(this.changeItem.memory),
                         }
-                        axios.post('/api/container/new', params = params)
+                        axios.post('/api/container/restore', params = params)
                             .then(response => {
                                 // 处理请求成功的响应数据
-                                console.log('post /api/container/new successful');
+                                console.log('post /api/container/restore successful');
                                 if (response.status == 200) {
                                     //创建环境成功并跳转
+
                                     let containerId = response.data.containerId
                                     let url = "https://" + containerId + this.href_server
                                     this.redirectIde(url)

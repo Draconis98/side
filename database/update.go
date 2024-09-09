@@ -33,6 +33,21 @@ func UpdateContainerInfo(containerName string, cpu int, memory int) bool {
 	return true
 }
 
+func UpdateContainerStatus(containerName string, status int) bool {
+	stmt, err := GetDBInstance().Prepare("UPDATE container SET status = ? WHERE container_id = ?")
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	_, err = stmt.Exec(status, containerName)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	return true
+}
+
 // func UpdateContainerMem(db *sql.DB, containerName string, mem int) bool {
 // 	stmt, err := db.Prepare("UPDATE container SET memory = ? WHERE container_name = ?")
 // 	if err != nil {
